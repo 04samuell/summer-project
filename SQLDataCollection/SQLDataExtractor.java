@@ -1,4 +1,3 @@
-import java.util.*;
 import java.io.File;
 
 /**
@@ -27,6 +26,8 @@ public class SQLDataExtractor {
             commits[sqlCommitCount++] = sqlCommits;
         }
 
+        /* 
+
         sqlData = new String[sqlCommitCount][];
         int i = 0;
 
@@ -41,6 +42,8 @@ public class SQLDataExtractor {
         // Write the data to the database using JDBC
         DatabaseWriter writer = new DatabaseWriter(sqlData);
         writer.commitToDatabase();
+
+        */
         
     }
 

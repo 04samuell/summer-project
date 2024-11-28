@@ -5,7 +5,7 @@ import java.util.Scanner;
 /**
  * CommitLogParser.java
  * 
- * A class to parse commit log files by filtering for SQL commits. 
+ * A class to parse commit log files by filtering for SQL commits.
  */
 public class CommitLogParser {
 
@@ -17,24 +17,36 @@ public class CommitLogParser {
     }
 
     /**
-     * A method to turn a commit log file into a String array of commits containing SQL
+     * A method to turn a commit log file into a String array of commits containing
+     * SQL
      * 
      * @return String[] of commits containing SQL
      * @throws FileNotFoundException
      */
-    public String[] getSQLCommits() throws FileNotFoundException{
+    public String[] getSQLCommits() {
+        Scanner sc = initScanner();
         StringBuilder result = new StringBuilder();
-        Scanner sc = new Scanner(this.commitLog);
-        sc.useDelimiter(COMMIT_SPLITTER);
-        while(sc.hasNext()) {
+        while (sc.hasNext()) {
             String commit = sc.next();
-            if(containsSQL(commit)) {
+            if (containsSQL(commit)) {
                 result.append(commit);
             }
         }
         sc.close();
 
         return result.toString().split(COMMIT_SPLITTER);
+    }
+
+    private Scanner initScanner() {
+        try {
+            Scanner sc = new Scanner(this.commitLog);
+            sc.useDelimiter(COMMIT_SPLITTER);
+            return sc;
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found");
+        }
+
+        return null;
     }
 
     /**
@@ -47,5 +59,5 @@ public class CommitLogParser {
         // Logic to determine if a commit contains SQL
         return Math.random() > 0.5;
     }
-    
+
 }
