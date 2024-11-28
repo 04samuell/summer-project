@@ -57,7 +57,7 @@ public class CommitLogParser {
      */
     private boolean containsSQL(String commit) {
         // Logic to determine if a commit contains SQL
-        return Math.random() > 0.5;
+        return false;
     }
 
 }

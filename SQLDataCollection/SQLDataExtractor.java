@@ -36,13 +36,13 @@ public class SQLDataExtractor {
         // Put each commit into a database ready format
         for(String[] projectCommits: commits) {
             for(String commit: projectCommits) {
-                SQLExtractor extractor = new SQLExtractor(commit);
-                sqlData[i++] = extractor.getFormattedEntry();
+                CommitFormatter formatter = new CommitFormatter(commit);
+                sqlData[i++] = formatter.getRowEntry();
             }
         }
 
         // Write the data to the database using JDBC
-        DatabaseWriter writer = new DatabaseWriter(sqlData);
+        JDBCDatabaseWriter writer = new JDBCDatabaseWriter(sqlData);
         writer.commitToDatabase();
 
         */
