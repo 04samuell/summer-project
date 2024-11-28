@@ -10,7 +10,7 @@ import java.util.Scanner;
 public class CommitLogParser {
 
     private File commitLog;
-    private static final String COMMIT_SPLITTER = "";
+    private static final String COMMIT_SPLITTER = "commit ";
 
     public CommitLogParser(File commitLog) {
         this.commitLog = commitLog;

@@ -26,6 +26,8 @@ public class SQLDataExtractor {
             commits[sqlCommitCount++] = sqlCommits;
         }
 
+        System.out.println(commits[0].length); // prints the number of commits containing SQL for the first project
+
         /* 
 
         sqlData = new String[sqlCommitCount][];
@@ -53,7 +55,7 @@ public class SQLDataExtractor {
      * @return array of Files in the ProjectCommitLogs directory
      */
     private static File[] getAllFiles() {
-        File folder = new File("ProjectCommitLogs");
+        File folder = new File("SQLDataCollection\\ProjectCommitLogs");
         return folder.listFiles();
     }
 
