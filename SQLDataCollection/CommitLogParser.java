@@ -1,5 +1,7 @@
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.Scanner;
 
 /**
@@ -10,7 +12,7 @@ import java.util.Scanner;
 public class CommitLogParser {
 
     private File commitLog;
-    private static final String COMMIT_SPLITTER = "commit ";
+    private static final String COMMIT_SPLITTER = "(?<=\\n)commit\\s+";
 
     public CommitLogParser(File commitLog) {
         this.commitLog = commitLog;
@@ -24,29 +26,28 @@ public class CommitLogParser {
      * @throws FileNotFoundException
      */
     public String[] getSQLCommits() {
-        Scanner sc = initScanner();
+
+        // Split the commit log file by "commit"
+        StringBuilder fileContent = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new FileReader(commitLog))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                fileContent.append(line).append("\n");
+            }
+        } catch (Exception e) {
+            System.out.println("Error reading file: " + e.getMessage());
+        }
+        String[] commitsArray = fileContent.toString().split(COMMIT_SPLITTER);
+
+        // Filter out the commits that don't contain SQL
         StringBuilder result = new StringBuilder();
-        while (sc.hasNext()) {
-            String commit = sc.next();
+        for (String commit : commitsArray) {
             if (containsSQL(commit)) {
-                result.append(commit);
+                result.append(commit).append("\n\n\n"); // Three new lines indicates the end of a commit
             }
         }
-        sc.close();
 
-        return result.toString().split(COMMIT_SPLITTER);
-    }
-
-    private Scanner initScanner() {
-        try {
-            Scanner sc = new Scanner(this.commitLog);
-            sc.useDelimiter(COMMIT_SPLITTER);
-            return sc;
-        } catch (FileNotFoundException e) {
-            System.out.println("File not found");
-        }
-
-        return null;
+        return result.toString().split("\n\n\n");
     }
 
     /**
@@ -57,7 +58,7 @@ public class CommitLogParser {
      */
     private boolean containsSQL(String commit) {
         // Logic to determine if a commit contains SQL
-        return false;
+        return true;
     }
 
 }
