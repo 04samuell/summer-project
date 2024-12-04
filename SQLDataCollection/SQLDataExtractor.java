@@ -1,4 +1,7 @@
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * SQLDataExtractor.java
@@ -11,7 +14,7 @@ public class SQLDataExtractor {
 
     private static File[] projects; // List of files containing commit logs for each project
     private static String[][] commits; // For each project, a list of commits containing sql 
-    private static String[][] sqlData; // Database ready data for each commit
+    private static List<String[]> sqlData = new ArrayList<>(); // Database ready data for each commit
 
     public static void main(String[] args) {
 
@@ -19,33 +22,44 @@ public class SQLDataExtractor {
         projects = getAllFiles();
         commits = new String[projects.length][];
 
-        int projectCounter = 0;
-
         // Filter out the commits that don't contain SQL
-        for(File project: projects) {
-            CommitLogParser parser = new CommitLogParser(project);
-            String[] sqlCommits = parser.getSQLCommits(); // returns an array where each entry is a commit containing sql
-            commits[projectCounter++] = sqlCommits;
-            sqlCommitCount += parser.getNumberOfSQLCommits();
+        for(int i = 0; i < projects.length; i++) {
+            CommitLogParser parser = new CommitLogParser(projects[i]);
+            commits[i] = parser.getSQLCommits(); // getSQLCommits turns a file into a list of commits containing SQL
         }
 
-        System.out.println(commits[0].length); // prints the number of commits containing SQL for the first project 
-        sqlData = new String[710][];
-        int i = 0;
+        System.out.println("Finished parsing. Number of commits containing SQL in first project is: " + commits[0].length);
 
+        // Get formatted entries for first 10 commits (in first project)
+        for(String[] projectCommits: commits) {
+            for(int i = 0 ; i < 10 ; i++) {
+                String commit = projectCommits[i];
+                CommitFormatter formatter = new CommitFormatter(commit);
+                List<String[]> rowEntries = formatter.getRowEntries(); // getRowEntries turns a commit into a list of database ready entries
+                for(String[] entry: rowEntries) {
+                    sqlData.add(entry);
+                }
+            }
+        }
+
+        /* 
         // Put each commit into a database ready format
         for(String[] projectCommits: commits) {
             for(String commit: projectCommits) {
                 CommitFormatter formatter = new CommitFormatter(commit);
-                  sqlData[i++] = formatter.getRowEntry();
+                List<String[]> rowEntries = formatter.getRowEntries(); // getRowEntries turns a commit into a list of database ready entries
+                for(String[] entry: rowEntries) {
+                    sqlData.add(entry);
+                }
             }
         }
-        System.out.println(i);
-        for(int j = 0; j < 10; j++) {
-            System.out.println("Commit " + j + ":");
-            System.out.println(sqlData[j][0] + "\n");
+
+        */
+
+        for(int i = 10; i < 20; i++) {
+            System.out.println("Entry " + i + ":");
+            System.out.println(Arrays.toString(sqlData.get(i)) + "\n");
         }
-        System.out.println(sqlData[0][0]);
 
         /*
 
