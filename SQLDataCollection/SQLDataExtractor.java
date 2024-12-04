@@ -19,27 +19,35 @@ public class SQLDataExtractor {
         projects = getAllFiles();
         commits = new String[projects.length][];
 
+        int projectCounter = 0;
+
         // Filter out the commits that don't contain SQL
         for(File project: projects) {
             CommitLogParser parser = new CommitLogParser(project);
             String[] sqlCommits = parser.getSQLCommits(); // returns an array where each entry is a commit containing sql
-            commits[sqlCommitCount++] = sqlCommits;
+            commits[projectCounter++] = sqlCommits;
+            sqlCommitCount += parser.getNumberOfSQLCommits();
         }
 
-        System.out.println(commits[0].length); // prints the number of commits containing SQL for the first project
-
-        /* 
-
-        sqlData = new String[sqlCommitCount][];
+        System.out.println(commits[0].length); // prints the number of commits containing SQL for the first project 
+        sqlData = new String[710][];
         int i = 0;
 
         // Put each commit into a database ready format
         for(String[] projectCommits: commits) {
             for(String commit: projectCommits) {
                 CommitFormatter formatter = new CommitFormatter(commit);
-                sqlData[i++] = formatter.getRowEntry();
+                  sqlData[i++] = formatter.getRowEntry();
             }
         }
+        System.out.println(i);
+        for(int j = 0; j < 10; j++) {
+            System.out.println("Commit " + j + ":");
+            System.out.println(sqlData[j][0] + "\n");
+        }
+        System.out.println(sqlData[0][0]);
+
+        /*
 
         // Write the data to the database using JDBC
         JDBCDatabaseWriter writer = new JDBCDatabaseWriter(sqlData);
