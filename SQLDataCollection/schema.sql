@@ -5,5 +5,5 @@ CREATE TABLE IF NOT EXISTS 'sql_commits' (
     'author' VARCHAR(100),
     'sql' TEXT,
     'sql_context' BOOLEAN,
-    'sql_update' BOOLEAN
+    'sql_change' BOOLEAN
 )

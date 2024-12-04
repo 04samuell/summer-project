@@ -61,10 +61,14 @@ public class SQLDataExtractor {
 
         */
 
-        // for(int i = 10; i < 20; i++) {
-        //     System.out.println("Entry " + i + ":");
-        //     System.out.println(Arrays.toString(sqlData.get(i)) + "\n");
-        // }
+        /* 
+
+        for(int i = 10; i < 20; i++) {
+            System.out.println("Entry " + i + ":");
+            System.out.println(Arrays.toString(sqlData.get(i)) + "\n");
+        }
+
+        */
 
 
 
@@ -72,7 +76,7 @@ public class SQLDataExtractor {
         CSVFileWriter writer = new CSVFileWriter(sqlData);
         writer.writeToCSV();
 
-        System.out.println("Finished writing to CSV file. Output stored in SQLDataCollection/sql-data.csv");
+        System.out.println("Finished writing to CSV file. Output stored in: SQLDataCollection/Results/sql-data.csv");
         
     }
 
