@@ -6,6 +6,7 @@ public class CommitFormatter {
 
     // Commit data
     private String commit;
+    private String projectName;
     private String metadata;
 
     // Regex patterns
@@ -15,8 +16,9 @@ public class CommitFormatter {
     private static final String AUTHOR_REGEX = "(?<=Author:\\s).*?(?=\\s<)";
     private static final String FILE_NAME_REGEX = "b\\/([^\\s]+)";
 
-    public CommitFormatter(String commit) {
+    public CommitFormatter(String commit, String projectName) {
         this.commit = commit;
+        this.projectName = projectName;
     }
 
     /**
@@ -45,12 +47,13 @@ public class CommitFormatter {
             String sql = getSQLString(fileCodeChanges);
             if(!sql.equals("")) { // Check if sql check came out empty, if not, make a row entry
                 String fileName = getFileName(fileCodeChanges);
-                String[] entry = new String[5];
-                entry[0] = commitHash;
-                entry[1] = author;
-                entry[2] = dateTime;
-                entry[3] = fileName;
-                entry[4] = sql;
+                String[] entry = new String[6];
+                entry[0] = projectName;
+                entry[1] = commitHash;
+                entry[2] = author;
+                entry[3] = dateTime;
+                entry[4] = fileName;
+                entry[5] = sql;
                 result.add(entry);
             }
         }
