@@ -1,6 +1,5 @@
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -31,6 +30,7 @@ public class SQLDataExtractor {
 
         System.out.println("Finished parsing. Number of commits containing SQL in first project is: " + commits[0].length);
 
+        /* 
         // Get formatted entries for first 10 commits (in first project)
         int projectCount = 0;
         for(String[] projectCommits: commits) {
@@ -44,8 +44,8 @@ public class SQLDataExtractor {
                 }
             }
         }
+        */
 
-        /* 
         // Put each commit into a database ready format
         int projectCount = 0;
         for(String[] projectCommits: commits) {
@@ -59,7 +59,6 @@ public class SQLDataExtractor {
             }
         }
 
-        */
 
         /* 
 
@@ -76,7 +75,7 @@ public class SQLDataExtractor {
         CSVFileWriter writer = new CSVFileWriter(sqlData);
         writer.writeToCSV();
 
-        System.out.println("Finished writing to CSV file. Output stored in: SQLDataCollection/Results/sql-data.csv");
+        System.out.println("Finished writing to CSV file. Output stored as: " + writer.getFileName());
         
     }
 

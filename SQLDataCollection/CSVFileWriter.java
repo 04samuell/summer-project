@@ -31,5 +31,9 @@ public class CSVFileWriter {
             System.out.println("Error writing to file: " + e.getMessage());
         }
     }
+
+    public String getFileName() {
+        return SUB_DIRECTORY + "\\" + FILE_NAME;
+    }
     
 }
