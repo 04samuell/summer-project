@@ -20,7 +20,7 @@ public class CommitLogParser {
             "UPDATE\\s+[^\\s]+\\s+SET\\s+[^\\s]+\\s+=\\s+.*|DELETE\\s+FROM\\s+[^\\s]+|" +
             "CREATE\\s+TABLE\\s+\\w+|ALTER\\s+TABLE\\s+\\w+|DROP\\s+TABLE\\s+\\w+|" +
             "TRUNCATE\\s+TABLE\\s+\\w+|WHERE\\s+[^\\s]+\\s+=\\s+.*|" +
-            "GROUP\\s+BY\\s+[^\\s]+|ORDER\\s+BY\\s+[^\\s]+|LIMIT\\s+\\d+)";
+            "GROUP\\s+BY\\s+[^\\s]+|ORDER\\s+BY\\s+[^\\s]+)";
 
     public CommitLogParser(File commitLog) {
         this.commitLog = commitLog;
@@ -44,7 +44,7 @@ public class CommitLogParser {
             }
         } catch (Exception e) {
             System.out.println("Error reading file: " + e.getMessage());
-        } catch(OutOfMemoryError e) {
+        } catch (OutOfMemoryError e) {
             System.out.println("File too large to read");
         }
         String[] commitsArray = fileContent.toString().split(COMMIT_SPLITTER);
@@ -76,6 +76,7 @@ public class CommitLogParser {
 
     /**
      * Getter method for the number of SQL commits
+     * 
      * @return the number of SQL commits
      */
     public int getNumberOfSQLCommits() {
