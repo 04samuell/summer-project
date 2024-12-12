@@ -26,9 +26,11 @@ public class SQLDataExtractor {
             CommitLogParser parser = new CommitLogParser(projects[i]);
             projectNames[i] = getProjectName(projects[i]);
             commits[i] = parser.getSQLCommits(); // getSQLCommits turns a file into a list of commits containing SQL
+            System.out.println("Finished parsing project" + i + ". Number of commits containing SQL: " + commits[i].length);
         }
 
-        System.out.println("Finished parsing. Number of commits containing SQL in first project is: " + commits[0].length);
+        System.out.println("Parsing Complete.");
+
 
         /* 
         // Get formatted entries for first 10 commits (in first project)

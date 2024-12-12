@@ -70,8 +70,9 @@ public class CommitFormatter {
      * @return the SQL statements in the String
      */
     private String getSQLString(String diff) {
+        // modify to use antlr
         StringBuilder result = new StringBuilder();
-        Pattern pattern = Pattern.compile(CommitLogParser.SQL_PATTERN);
+        Pattern pattern = Pattern.compile(CommitLogParser.SQL_PATTERN, Pattern.DOTALL);
         Matcher matcher = pattern.matcher(diff);
         while (matcher.find()) {
             result.append(matcher.group()).append("\n");
