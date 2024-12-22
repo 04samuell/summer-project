@@ -15,12 +15,20 @@ public class CommitLogParser {
     private File commitLog;
     private int sqlCommitCounter = 0;
     static final String COMMIT_SPLITTER = "(?<=\\n)commit\\s+";
+
     static final String SQL_PATTERN = "(?i)" +
-            "(SELECT\\s+[^\\s]+\\s+FROM\\s+[^\\s]+|INSERT\\s+INTO\\s+[^\\s]+\\s+VALUES\\s+\\(.*\\)|" +
-            "UPDATE\\s+[^\\s]+\\s+SET\\s+[^\\s]+\\s+=\\s+.*|DELETE\\s+FROM\\s+[^\\s]+|" +
+            "(SELECT\\s+[a-zA-Z_]+\\s+FROM\\s+\\s+[\\S]{2,}|" +
+            "INSERT\\s+INTO\\s+[^\\s]+\\s+VALUES\\s+\\(.*\\)|" +
+            "UPDATE\\s+[^\\s]+\\s+SET\\s+[^\\s]+\\s+=\\s+.*|" +
+            "DELETE\\s+FROM\\s+[^\\s]+|" +
             "CREATE\\s+TABLE\\s+\\w+|ALTER\\s+TABLE\\s+\\w+|DROP\\s+TABLE\\s+\\w+|" +
-            "TRUNCATE\\s+TABLE\\s+\\w+|WHERE\\s+[^\\s]+\\s+=\\s+.*|" +
-            "GROUP\\s+BY\\s+[^\\s]+|ORDER\\s+BY\\s+[^\\s]+)";
+            "TRUNCATE\\s+TABLE\\s+\\w+|" +
+            "USE\\s+\\w+\\s*;$" +
+            "DROP\\s+DATAVERSE\\s+\\w+|" +
+            "CREATE\\s+DATAVERSE\\s+\\w+|" +
+            "CREATE\\s+TYPE\\s+\\w+|" +
+            "CREATE\\sEXTERNAL\\sDATASET\\s\\w+|" +
+            "CREATE\\s+COLLECTION\\s+\\w+\\(.*\\))";
 
     public CommitLogParser(File commitLog) {
         this.commitLog = commitLog;

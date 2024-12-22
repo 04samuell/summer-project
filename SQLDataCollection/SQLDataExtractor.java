@@ -17,7 +17,8 @@ public class SQLDataExtractor {
     public static void main(String[] args) {
 
         // Get the commit log files for each project
-        projects = getAllFiles();
+        //projects = getAllFiles();
+        projects = new File[] {new File("SQLDataCollection\\ProjectCommitLogs\\oodt-commits.txt")}; // For testing purposes, only use the first project
         commits = new String[projects.length][];
         projectNames = new String[projects.length];
 
@@ -26,18 +27,18 @@ public class SQLDataExtractor {
             CommitLogParser parser = new CommitLogParser(projects[i]);
             projectNames[i] = getProjectName(projects[i]);
             commits[i] = parser.getSQLCommits(); // getSQLCommits turns a file into a list of commits containing SQL
-            System.out.println("Finished parsing project" + i + ". Number of commits containing SQL: " + commits[i].length);
+            System.out.println("Finished parsing project: " + projectNames[i] + ". Number of commits containing SQL: " + commits[i].length);
         }
 
         System.out.println("Parsing Complete.");
 
 
-        /* 
-        // Get formatted entries for first 10 commits (in first project)
+        
+        // Get formatted entries for first 20 commits (in first project)
         int projectCount = 0;
         for(String[] projectCommits: commits) {
             String projectName = projectNames[projectCount++];
-            for(int i = 0 ; i < 10 ; i++) {
+            for(int i = 0 ; i < 20 ; i++) {
                 String commit = projectCommits[i];
                 CommitFormatter formatter = new CommitFormatter(commit, projectName);
                 List<String[]> rowEntries = formatter.getRowEntries(); // getRowEntries turns a commit into a list of database ready entries
@@ -46,12 +47,14 @@ public class SQLDataExtractor {
                 }
             }
         }
-        */
+        
 
+        /* 
         // Put each commit into a database ready format
         int projectCount = 0;
         for(String[] projectCommits: commits) {
             String projectName = projectNames[projectCount++];
+            System.out.println("Formatting entries for project: " + projectName);
             for(String commit: projectCommits) {
                 CommitFormatter formatter = new CommitFormatter(commit, projectName);
                 List<String[]> rowEntries = formatter.getRowEntries(); // getRowEntries turns a commit into a list of database ready entries
@@ -60,6 +63,10 @@ public class SQLDataExtractor {
                 }
             }
         }
+
+        */
+
+        System.out.println("Finished formatting entries.");
 
 
         /* 

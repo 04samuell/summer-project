@@ -48,6 +48,9 @@ public class CommitFormatter {
             String sql = getSQLString(fileCodeChanges);
             if (!sql.equals("")) { // Check if sql check came out empty, if not, make a row entry
                 String fileName = getFileName(fileCodeChanges);
+                if (fileName.endsWith(".xml")) {
+                    continue;
+                }
                 String[] entry = new String[8];
                 entry[0] = projectName;
                 entry[1] = commitHash;
@@ -69,13 +72,85 @@ public class CommitFormatter {
      * 
      * @return the SQL statements in the String
      */
-    private String getSQLString(String diff) {
-        // modify to use antlr
-        StringBuilder result = new StringBuilder();
-        Pattern pattern = Pattern.compile(CommitLogParser.SQL_PATTERN, Pattern.DOTALL);
-        Matcher matcher = pattern.matcher(diff);
+    private String getSQLString(String commitPatch) {
+
+        // SQLParser parser = new SQLParser();
+        // return parser.parseText(commitPatch);
+
+        StringBuilder sqlStatements = new StringBuilder();
+        commitPatch = removePlusMinus(commitPatch);
+        Pattern pattern = Pattern.compile(CommitLogParser.SQL_PATTERN);
+        Matcher matcher = pattern.matcher(commitPatch);
+
         while (matcher.find()) {
-            result.append(matcher.group()).append("\n");
+            int startIndex = matcher.start();
+            boolean embedded = commitPatch.charAt(startIndex - 1) == '('; // if preceding bracket, SQL is embedded in
+                                                                          // string
+            boolean assignment = commitPatch.charAt(startIndex - 1) == '='; // if preceding equals sign, SQL is
+                                                                            // assignment
+            boolean commented = commitPatch.charAt(startIndex - 2) == '-'; // if preceding minus sign, SQL is commented
+            int endIndex;
+            if (embedded) {
+                endIndex = findEndOfStatementEmbedded(commitPatch, startIndex);
+            } else if (assignment) {
+                endIndex = findEndOfStatementAssignment(commitPatch, startIndex);
+            } else {
+                endIndex = findEndOfStatement(commitPatch, startIndex);
+            }
+
+            if(commented) {
+                sqlStatements.append("-- "); // if commented, then add comment prefix since pattern matcher will miss it
+            }
+            if (endIndex != -1) {
+                sqlStatements.append(commitPatch.substring(startIndex, endIndex + 1)).append("\n");
+            }
+        }
+
+        return sqlStatements.toString();
+    }
+
+    // Assist with regex pattern matcher method
+    private int findEndOfStatement(String patch, int startIndex) {
+        int endIndex = patch.indexOf(';', startIndex);
+        return endIndex != -1 ? endIndex : -1;
+    }
+
+    // Assist with regex pattern matcher method
+    // Start at beginning of statement and keep going until finding the braket which
+    // closes the original bracket
+    private int findEndOfStatementEmbedded(String patch, int startIndex) {
+        char charCounter = patch.charAt(startIndex);
+        int count = 1;
+        while (count != 0) {
+            charCounter = patch.charAt(startIndex++);
+            if (charCounter == '(') {
+                count++;
+            } else if (charCounter == ')') {
+                count--;
+            }
+        }
+
+        return startIndex - 1;
+    }
+
+    private int findEndOfStatementAssignment(String patch, int startIndex) {
+        int endIndex = patch.indexOf(';', startIndex);
+        if (endIndex == -1) {
+            endIndex = patch.indexOf('\n', startIndex);
+        }
+        return endIndex != -1 ? endIndex : -1;
+    }
+
+
+    // Assist with regex pattern matcher method
+    private String removePlusMinus(String commitPatch) {
+        StringBuilder result = new StringBuilder();
+        String[] lines = commitPatch.split("\n");
+        for (String line : lines) {
+            if (line.length() > 0 && (line.startsWith("+") || line.startsWith("-"))) {
+                line = line.substring(1);
+            }
+            result.append(line).append("\n");
         }
         return result.toString();
     }
