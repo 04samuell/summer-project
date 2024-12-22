@@ -101,6 +101,7 @@ public class CommitFormatter {
             if(commented) {
                 sqlStatements.append("-- "); // if commented, then add comment prefix since pattern matcher will miss it
             }
+            
             if (endIndex != -1) {
                 sqlStatements.append(commitPatch.substring(startIndex, endIndex + 1)).append("\n");
             }

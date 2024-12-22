@@ -17,7 +17,7 @@ public class CommitLogParser {
     static final String COMMIT_SPLITTER = "(?<=\\n)commit\\s+";
 
     static final String SQL_PATTERN = "(?i)" +
-            "(SELECT\\s+[a-zA-Z_]+\\s+FROM\\s+\\s+[\\S]{2,}|" +
+            "(SELECT\\s+[^\\s]+\\s+FROM\\s+[^\\s]+|" + // needs to not match SELECT * FROM "
             "INSERT\\s+INTO\\s+[^\\s]+\\s+VALUES\\s+\\(.*\\)|" +
             "UPDATE\\s+[^\\s]+\\s+SET\\s+[^\\s]+\\s+=\\s+.*|" +
             "DELETE\\s+FROM\\s+[^\\s]+|" +
