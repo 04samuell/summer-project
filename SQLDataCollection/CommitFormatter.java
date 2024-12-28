@@ -16,6 +16,8 @@ public class CommitFormatter {
     private static final String AUTHOR_REGEX = "(?<=Author:\\s).*?(?=\\s<)";
     private static final String FILE_NAME_REGEX = "b\\/([^\\s]+)";
 
+    private int prevEndIndex = 0;
+
     public CommitFormatter(String commit, String projectName) {
         this.commit = commit;
         this.projectName = projectName;
@@ -84,12 +86,26 @@ public class CommitFormatter {
 
         while (matcher.find()) {
             int startIndex = matcher.start();
-            boolean embedded = commitPatch.charAt(startIndex - 1) == '('; // if preceding bracket, SQL is embedded in
-                                                                          // string
-            boolean assignment = commitPatch.charAt(startIndex - 1) == '='; // if preceding equals sign, SQL is
-                                                                            // assignment
-            boolean commented = commitPatch.charAt(startIndex - 2) == '-'; // if preceding minus sign, SQL is commented
+
+            // Skip if string already processed 
+            if(startIndex < prevEndIndex) {
+                continue; 
+            }
+
+            boolean embedded = commitPatch.charAt(startIndex - 2) == '(' || commitPatch.charAt(startIndex - 1) == '('; // SQL
+                                                                                                                       // is
+                                                                                                                       // embedded
+                                                                                                                       // in
+                                                                                                                       // string
+            boolean assignment = commitPatch.charAt(startIndex - 3) == '=' || commit.charAt(startIndex - 2) == '='; // SQL
+                                                                                                                    // is
+                                                                                                                    // assignment
+            boolean commented = commitPatch.charAt(startIndex - 2) == '-' || commitPatch.charAt(startIndex - 1) == '-'; // SQL
+                                                                                                                        // is
+                                                                                                                        // commented
             int endIndex;
+
+            // Find end of statement based on preceding characters
             if (embedded) {
                 endIndex = findEndOfStatementEmbedded(commitPatch, startIndex);
             } else if (assignment) {
@@ -98,13 +114,25 @@ public class CommitFormatter {
                 endIndex = findEndOfStatement(commitPatch, startIndex);
             }
 
-            if(commented) {
+            if (commented) {
                 sqlStatements.append("-- "); // if commented, then add comment prefix since pattern matcher will miss it
             }
-            
-            if (endIndex != -1) {
-                sqlStatements.append(commitPatch.substring(startIndex, endIndex + 1)).append("\n");
+
+            if(commitPatch.contains("SELECT * FROM *")) {
+                continue;
             }
+
+            // Append the SQL statement along with newline and optional semicolon to the result
+            if (endIndex != -1 && !commitPatch.contains("SELECT * FROM ")) { // gets rid of no end index found and a SELECT anomaly 
+                prevEndIndex = endIndex;
+                sqlStatements.append(commitPatch.substring(startIndex, endIndex + 1));
+                if (commitPatch.charAt(endIndex) != ';') {
+                    sqlStatements.append(";\n\n");
+                } else {
+                    sqlStatements.append("\n\n");
+                }
+            }
+
         }
 
         return sqlStatements.toString();
@@ -120,18 +148,18 @@ public class CommitFormatter {
     // Start at beginning of statement and keep going until finding the braket which
     // closes the original bracket
     private int findEndOfStatementEmbedded(String patch, int startIndex) {
-        char charCounter = patch.charAt(startIndex);
+        int index = startIndex;
         int count = 1;
         while (count != 0) {
-            charCounter = patch.charAt(startIndex++);
-            if (charCounter == '(') {
+            char charIterator = patch.charAt(index++);
+            if (charIterator == '(') {
                 count++;
-            } else if (charCounter == ')') {
+            } else if (charIterator == ')') {
                 count--;
             }
         }
 
-        return startIndex - 1;
+        return index - 3; // so as to ommit )" at the end
     }
 
     private int findEndOfStatementAssignment(String patch, int startIndex) {
@@ -139,9 +167,8 @@ public class CommitFormatter {
         if (endIndex == -1) {
             endIndex = patch.indexOf('\n', startIndex);
         }
-        return endIndex != -1 ? endIndex : -1;
+        return endIndex != -1 ? endIndex - 2 : -1;
     }
-
 
     // Assist with regex pattern matcher method
     private String removePlusMinus(String commitPatch) {

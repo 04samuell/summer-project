@@ -1,7 +1,5 @@
 {
 
-    "java.project.referencedLibraries": [
-    "SQLDataCollection/lib/*.jar"
-]
+
 
 }

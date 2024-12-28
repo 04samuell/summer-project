@@ -18,7 +18,7 @@ public class SQLDataExtractor {
 
         // Get the commit log files for each project
         //projects = getAllFiles();
-        projects = new File[] {new File("SQLDataCollection\\ProjectCommitLogs\\oodt-commits.txt")}; // For testing purposes, only use the first project
+        projects = new File[] {new File("SQLDataCollection\\ProjectCommitLogs\\asterixdb-commits.txt")}; // For testing purposes, only use the first project
         commits = new String[projects.length][];
         projectNames = new String[projects.length];
 
