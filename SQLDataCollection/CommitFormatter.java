@@ -123,7 +123,7 @@ public class CommitFormatter {
             }
 
             // Append the SQL statement along with newline and optional semicolon to the result
-            if (endIndex != -1 && !commitPatch.contains("SELECT * FROM ")) { // gets rid of no end index found and a SELECT anomaly 
+            if (endIndex != -1 && !commitPatch.contains("SELECT * FROM ") && !commitPatch.contains("delete from the")) { // gets rid of no end index found and a SELECT anomaly 
                 prevEndIndex = endIndex;
                 sqlStatements.append(commitPatch.substring(startIndex, endIndex + 1));
                 if (commitPatch.charAt(endIndex) != ';') {
