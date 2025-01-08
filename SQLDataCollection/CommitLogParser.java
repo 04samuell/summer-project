@@ -60,6 +60,7 @@ public class CommitLogParser {
             System.out.println("Error reading file: " + e.getMessage());
         } catch (OutOfMemoryError e) {
             System.out.println("File too large to read");
+            return null;
         }
         String[] commitsArray = fileContent.toString().split(COMMIT_SPLITTER);
 

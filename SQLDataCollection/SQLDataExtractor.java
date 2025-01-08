@@ -69,17 +69,6 @@ public class SQLDataExtractor {
         System.out.println("Finished formatting entries.");
 
 
-        /* 
-
-        for(int i = 10; i < 20; i++) {
-            System.out.println("Entry " + i + ":");
-            System.out.println(Arrays.toString(sqlData.get(i)) + "\n");
-        }
-
-        */
-
-
-
         // Write the data to a CSV file
         CSVFileWriter writer = new CSVFileWriter(sqlData);
         writer.writeToCSV();

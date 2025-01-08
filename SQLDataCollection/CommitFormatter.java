@@ -50,7 +50,7 @@ public class CommitFormatter {
             String sql = getSQLString(fileCodeChanges);
             if (!sql.equals("")) { // Check if sql check came out empty, if not, make a row entry
                 String fileName = getFileName(fileCodeChanges);
-                if (fileName.endsWith(".xml")) {
+                if (!checkFileTypeValidity(fileName)) {
                     continue;
                 }
                 String[] entry = new String[8];
@@ -87,11 +87,14 @@ public class CommitFormatter {
         while (matcher.find()) {
             int startIndex = matcher.start();
 
-            // Skip if string already processed 
-            if(startIndex < prevEndIndex) {
-                continue; 
+            // Skip if string already processed
+            if (startIndex < prevEndIndex) {
+                continue;
             }
 
+            if(commitPatch.charAt(startIndex - 2) == '/' || commitPatch.charAt(startIndex - 1) == '\'') continue; // if inside a comment block or single quote, skip
+
+            boolean stringified = commitPatch.charAt(startIndex - 1) == '"';
             boolean embedded = commitPatch.charAt(startIndex - 2) == '(' || commitPatch.charAt(startIndex - 1) == '('; // SQL
                                                                                                                        // is
                                                                                                                        // embedded
@@ -106,7 +109,9 @@ public class CommitFormatter {
             int endIndex;
 
             // Find end of statement based on preceding characters
-            if (embedded) {
+            if (stringified) {
+                endIndex = findEndOfStatementString(commitPatch, startIndex);
+            } else if (embedded) {
                 endIndex = findEndOfStatementEmbedded(commitPatch, startIndex);
             } else if (assignment) {
                 endIndex = findEndOfStatementAssignment(commitPatch, startIndex);
@@ -118,14 +123,30 @@ public class CommitFormatter {
                 sqlStatements.append("-- "); // if commented, then add comment prefix since pattern matcher will miss it
             }
 
-            if(commitPatch.contains("SELECT * FROM *")) {
+            if (commitPatch.contains("SELECT * FROM *")) {
                 continue;
             }
 
-            // Append the SQL statement along with newline and optional semicolon to the result
-            if (endIndex != -1 && !commitPatch.contains("SELECT * FROM ") && !commitPatch.contains("delete from the")) { // gets rid of no end index found and a SELECT anomaly 
+            // Append the SQL statement along with newline and optional semicolon to the
+            // result
+            if (endIndex != -1 && !commitPatch.contains("SELECT * FROM ") && !commitPatch.contains("delete from the")) { // gets
+                                                                                                                         // rid
+                                                                                                                         // of
+                                                                                                                         // no
+                                                                                                                         // end
+                                                                                                                         // index
+                                                                                                                         // found
+                                                                                                                         // and
+                                                                                                                         // a
+                                                                                                                         // SELECT
+                                                                                                                         // anomaly
                 prevEndIndex = endIndex;
-                sqlStatements.append(commitPatch.substring(startIndex, endIndex + 1));
+                String sql = commitPatch.substring(startIndex, endIndex + 1);
+
+                if(sql.contains("*/")) continue; // if inside a comment block, skip
+                if(sql.contains("{") && !sql.contains("}")) continue; // pretty good indication that something went wrong
+
+                sqlStatements.append(sql);
                 if (commitPatch.charAt(endIndex) != ';') {
                     sqlStatements.append(";\n\n");
                 } else {
@@ -136,6 +157,11 @@ public class CommitFormatter {
         }
 
         return sqlStatements.toString();
+    }
+
+    private int findEndOfStatementString(String patch, int startIndex) {
+        int endIndex = patch.indexOf('"', startIndex);
+        return endIndex != -1 ? endIndex - 1: -1;
     }
 
     // Assist with regex pattern matcher method
@@ -151,6 +177,9 @@ public class CommitFormatter {
         int index = startIndex;
         int count = 1;
         while (count != 0) {
+            if (index == patch.length()) {
+                return -1;
+            }
             char charIterator = patch.charAt(index++);
             if (charIterator == '(') {
                 count++;
@@ -292,6 +321,14 @@ public class CommitFormatter {
             }
         }
         return false; // No SQL found in change
+    }
+
+    private boolean checkFileTypeValidity(String fileName) {
+        if(fileName.endsWith(".java") || fileName.endsWith(".sql") || fileName.endsWith(".sqlpp") || fileName.endsWith(".json")) {
+            return true;
+        }
+
+        return false;
     }
 
 }
