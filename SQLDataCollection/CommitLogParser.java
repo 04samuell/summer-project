@@ -56,6 +56,7 @@ public class CommitLogParser {
             while ((line = reader.readLine()) != null) {
                 fileContent.append(line).append("\n");
             }
+            reader.close(); // Free memory
         } catch (Exception e) {
             System.out.println("Error reading file: " + e.getMessage());
         } catch (OutOfMemoryError e) {
@@ -63,6 +64,7 @@ public class CommitLogParser {
             return null;
         }
         String[] commitsArray = fileContent.toString().split(COMMIT_SPLITTER);
+        fileContent = null; // Free up memory
 
         // Filter out the commits that don't contain SQL
         StringBuilder result = new StringBuilder();
@@ -73,6 +75,7 @@ public class CommitLogParser {
             }
         }
 
+        commitsArray = null; // Free up memory
         return result.toString().split("\n\n\n\n");
     }
 

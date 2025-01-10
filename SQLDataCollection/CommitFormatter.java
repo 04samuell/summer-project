@@ -72,12 +72,10 @@ public class CommitFormatter {
     /**
      * Given a String, extracts the SQL.
      * 
+     * @param commitPatch the commit patch
      * @return the SQL statements in the String
      */
     private String getSQLString(String commitPatch) {
-
-        // SQLParser parser = new SQLParser();
-        // return parser.parseText(commitPatch);
 
         StringBuilder sqlStatements = new StringBuilder();
         commitPatch = removePlusMinus(commitPatch);
@@ -88,11 +86,10 @@ public class CommitFormatter {
             int startIndex = matcher.start();
 
             // Skip if string already processed
-            if (startIndex < prevEndIndex) {
-                continue;
-            }
+            if (startIndex < prevEndIndex) continue;
 
-            if(commitPatch.charAt(startIndex - 2) == '/' || commitPatch.charAt(startIndex - 1) == '\'') continue; // if inside a comment block or single quote, skip
+            if (commitPatch.charAt(startIndex - 2) == '/' || commitPatch.charAt(startIndex - 1) == '\'')
+                continue; // if inside a comment block or single quote, skip
 
             boolean stringified = commitPatch.charAt(startIndex - 1) == '"';
             boolean embedded = commitPatch.charAt(startIndex - 2) == '(' || commitPatch.charAt(startIndex - 1) == '('; // SQL
@@ -127,24 +124,16 @@ public class CommitFormatter {
                 continue;
             }
 
-            // Append the SQL statement along with newline and optional semicolon to the
-            // result
-            if (endIndex != -1 && !commitPatch.contains("SELECT * FROM ") && !commitPatch.contains("delete from the")) { // gets
-                                                                                                                         // rid
-                                                                                                                         // of
-                                                                                                                         // no
-                                                                                                                         // end
-                                                                                                                         // index
-                                                                                                                         // found
-                                                                                                                         // and
-                                                                                                                         // a
-                                                                                                                         // SELECT
-                                                                                                                         // anomaly
+            // Append the SQL statement to the result
+            if (endIndex != -1 && !commitPatch.contains("SELECT * FROM ") && !commitPatch.contains("delete from the")
+                    && !commitPatch.contains("delete from what")) {
                 prevEndIndex = endIndex;
                 String sql = commitPatch.substring(startIndex, endIndex + 1);
 
-                if(sql.contains("*/")) continue; // if inside a comment block, skip
-                if(sql.contains("{") && !sql.contains("}")) continue; // pretty good indication that something went wrong
+                if (sql.contains("*/"))
+                    continue; // if inside a comment block, skip
+                if (sql.contains("{") && !sql.contains("}"))
+                    continue; // pretty good indication that something went wrong
 
                 sqlStatements.append(sql);
                 if (commitPatch.charAt(endIndex) != ';') {
@@ -159,20 +148,37 @@ public class CommitFormatter {
         return sqlStatements.toString();
     }
 
+    /**
+     * Finds the end index of a statement that is embedded in a string.
+     * @param patch the commit patch
+     * @param startIndex the start index of the statement
+     * @return the end index of the statement
+     */
     private int findEndOfStatementString(String patch, int startIndex) {
         int endIndex = patch.indexOf('"', startIndex);
-        return endIndex != -1 ? endIndex - 1: -1;
+        return endIndex != -1 ? endIndex - 1 : -1;
     }
 
-    // Assist with regex pattern matcher method
+    /**
+     * Finds the end index of a statement.
+     * @param patch the commit patch
+     * @param startIndex the start index of the statement
+     * @return the end index of the statement
+     */
     private int findEndOfStatement(String patch, int startIndex) {
         int endIndex = patch.indexOf(';', startIndex);
         return endIndex != -1 ? endIndex : -1;
     }
 
-    // Assist with regex pattern matcher method
-    // Start at beginning of statement and keep going until finding the braket which
-    // closes the original bracket
+
+    /**
+     * Finds the end index of a statement that is inside a method.
+     * 
+     * Find the last unmatched bracket since startindex excludes opening bracket
+     * @param patch the commit patch
+     * @param startIndex the start index of the statement
+     * @return the end index of the statement
+     */
     private int findEndOfStatementEmbedded(String patch, int startIndex) {
         int index = startIndex;
         int count = 1;
@@ -191,6 +197,12 @@ public class CommitFormatter {
         return index - 3; // so as to ommit )" at the end
     }
 
+    /**
+     * Find the end index of a statement that is an assignment.
+     * @param patch the commit patch
+     * @param startIndex the start index of the statement
+     * @return the end index of the statement
+     */
     private int findEndOfStatementAssignment(String patch, int startIndex) {
         int endIndex = patch.indexOf(';', startIndex);
         if (endIndex == -1) {
@@ -199,7 +211,11 @@ public class CommitFormatter {
         return endIndex != -1 ? endIndex - 2 : -1;
     }
 
-    // Assist with regex pattern matcher method
+    /**
+     * Removes the '+' and '-' characters from the patch.
+     * @param commitPatch the commit patch
+     * @return the patch without '+' and '-' characters
+     */
     private String removePlusMinus(String commitPatch) {
         StringBuilder result = new StringBuilder();
         String[] lines = commitPatch.split("\n");
@@ -323,8 +339,14 @@ public class CommitFormatter {
         return false; // No SQL found in change
     }
 
+    /**
+     * Method to check if the file type is valid (java, sql, sqlpp, json)
+     * @param fileName the name of the file
+     * @return true if the file type is valid, false otherwise
+     */
     private boolean checkFileTypeValidity(String fileName) {
-        if(fileName.endsWith(".java") || fileName.endsWith(".sql") || fileName.endsWith(".sqlpp") || fileName.endsWith(".json")) {
+        if (fileName.endsWith(".java") || fileName.endsWith(".sql") || fileName.endsWith(".sqlpp")
+                || fileName.endsWith(".json")) {
             return true;
         }
 
