@@ -4,36 +4,50 @@ import java.nio.file.*;
 
 public class CSVFileWriter {
 
-    private List<String[]> data;
+    private Path path = Paths.get(SUB_DIRECTORY, FILE_NAME);
+    private BufferedWriter writer;
     private static final String SUB_DIRECTORY = "SQLDataCollection\\Results";
     private static final String FILE_NAME = "sql-data.csv";
     private static final String HEADER = "Project Name,Commit Hash,Author,Date Time,File Name,SQL,SQL Context,SQL Change";
 
-    public CSVFileWriter(List<String[]> data) {
-        this.data = data;
+    /**
+     * Constructor for CSVFileWriter.
+     * 
+     * Creates the file writer object and initialises it with header.
+     */
+    public CSVFileWriter() {
+        try {
+            this.writer = new BufferedWriter(new FileWriter(path.toFile()));
+            writer.write(String.join(",", HEADER));
+            writer.newLine();
+        } catch (Exception e) {
+            System.out.println("Error creating CSV File: " + e.getMessage());
+        }
     }
 
     /**
-     * A method to write the data to a CSV file.
+     * A method to write the data to the writer object.
+     * 
+     * @param data list of data to be written.
      */
-    public void writeToCSV() {
-
-        Path path = Paths.get(SUB_DIRECTORY, FILE_NAME);
-
-        try(BufferedWriter writer = new BufferedWriter(new FileWriter(path.toFile()))) {
-            writer.write(String.join(",", HEADER));
-            writer.newLine();
-            for(String[] entry: data) {
+    public void writeToCSV(List<String[]> data) {
+        try {
+            for (String[] entry : data) {
                 writer.write(String.join(",", entry));
                 writer.newLine();
             }
         } catch (Exception e) {
-            System.out.println("Error writing to file: " + e.getMessage());
+            System.out.println("Error appending to file: " + e.getMessage());
         }
     }
 
+    /**
+     * Method to get the file name of the eventual CSV file.
+     * 
+     * @return the name of the csv file.
+     */
     public String getFileName() {
         return SUB_DIRECTORY + "\\" + FILE_NAME;
     }
-    
+
 }

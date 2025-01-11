@@ -12,91 +12,41 @@ public class SQLDataExtractor {
 
     private static File[] projects; // List of files containing commit logs for each project
     private static String[] projectNames; // List of project names
-    private static String[][] commits; // For each project, a list of commits containing sql
     private static List<String[]> sqlData = new ArrayList<>(); // Database ready data for each commit
+    private static CSVFileWriter writer = new CSVFileWriter();
 
     public static void main(String[] args) {
 
         // Get the commit log files for each project
         projects = getAllFiles();
-        // projects = new File[] {new
-        // File("SQLDataCollection\\ProjectCommitLogs\\lucene-solr-commits.txt")}; //
-        // For testing purposes, only use the first project
-        commits = new String[projects.length][];
+        //projects = new File[]{(new File("SQLDataCollection\\ProjectCommitLogs\\lucene-solr-commits.txt"))}; 
+
         projectNames = new String[projects.length];
 
-        System.out.println("*** Parsing Stage - Number of projects: " + projects.length + " ***\n");
+        System.out.println("*** SQLDataExtraction - Number of projects: " + projects.length + " ***\n");
 
-        // Filter out the commits that don't contain SQL
+        // For each project, filter, format and append to csv file
         for (int i = 0; i < projects.length; i++) {
             CommitLogParser parser = new CommitLogParser(projects[i]);
             projectNames[i] = getProjectName(projects[i]);
-            // commits[i] = parser.getSQLCommits(); // getSQLCommits turns a file into a
-            // list of commits containing SQL
-
-            String[] sqlCommits = parser.getSQLCommits();
-            formatEntries(sqlCommits, projectNames[i]);
-            sqlCommits = null; // Free memory
-
-            // System.out.println("Finished parsing project: " + projectNames[i] + ". Number
-            // of commits containing SQL: " + commits[i].length);
+            System.out.print("Parsing text file for project " + projects[i] + ". ");
+            String[] sqlCommits = parser.getSQLCommits(); // Filter out non-SQL commits
+            System.out.println("Parsing complete");
+            formatEntries(sqlCommits, projectNames[i]); // Format the remaining commits
         }
 
-        System.out.println("\n*** Parsing Complete ***" + "\n\n*** Formatting Stage ***\n");
-
-        /*
-         * // Get formatted entries for first 20 commits (in first project)
-         * int projectCount = 0;
-         * for(String[] projectCommits: commits) {
-         * String projectName = projectNames[projectCount++];
-         * for(int i = 0 ; i < 20 ; i++) {
-         * String commit = projectCommits[i];
-         * CommitFormatter formatter = new CommitFormatter(commit, projectName);
-         * List<String[]> rowEntries = formatter.getRowEntries(); // getRowEntries turns
-         * a commit into a list of database ready entries
-         * for(String[] entry: rowEntries) {
-         * sqlData.add(entry);
-         * }
-         * }
-         * }
-         * 
-         */
-
-        /*
-         * // Put each commit into a database ready format
-         * int projectCount = 0;
-         * for(String[] projectCommits: commits) {
-         * int entryCount = 0;
-         * String projectName = projectNames[projectCount++];
-         * System.out.println("Formatting entries for project: " + projectName);
-         * for(String commit: projectCommits) {
-         * CommitFormatter formatter = new CommitFormatter(commit, projectName);
-         * List<String[]> rowEntries = formatter.getRowEntries(); // getRowEntries turns
-         * a commit into a list of database ready entries
-         * for(String[] entry: rowEntries) {
-         * sqlData.add(entry);
-         * entryCount++;
-         * }
-         * System.out.println("Formatting complete for project: " + projectName +
-         * " Number of SQL entries: " + entryCount);
-         * }
-         * }
-         * 
-         */
-
-        System.out.println("*** Finished formatting entries ***\n\n*** Writing result to CSV file ***");
-
-        // Write the data to a CSV file
-        CSVFileWriter writer = new CSVFileWriter(sqlData);
-        writer.writeToCSV();
-
-        System.out.println("Finished writing to CSV file. Output stored as: " + writer.getFileName()
-                + "\n\n*** Process Complete ***");
-
+        System.out.println("\n\n*** Process completed! ***\n\n*** Output stored as " +  writer.getFileName() + "***");
     }
 
+    /**
+     * Method to format entries into database ready format. Appends to csv file 
+     * 
+     * @param sqlCommits the commits that contain sql
+     * @param projectName the 
+     */
     private static void formatEntries(String[] sqlCommits, String projectName) {
-        System.out.println("Formatting entries for project: " + projectName);
+        System.out.println("Formatting entries for project: " + projectName + ". ");
+        sqlData = new ArrayList<>();
         int entryCount = 0;
         for (String commit : sqlCommits) {
             CommitFormatter formatter = new CommitFormatter(commit, projectName);
@@ -106,8 +56,11 @@ public class SQLDataExtractor {
                 entryCount++;
             }
         }
-        System.out.println("Formatting complete for project: " + projectName + " Number of SQL entries: " + entryCount);
+        System.out.print("Formatting complete - Number of SQL entries: " + entryCount + " ");
+        writer.writeToCSV(sqlData);
+        System.out.println("Finished writing to CSV");
     }
+
 
     /**
      * Helper method to get all files in the ProjectCommitLogs directory
