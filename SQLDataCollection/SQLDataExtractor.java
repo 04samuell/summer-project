@@ -18,8 +18,8 @@ public class SQLDataExtractor {
     public static void main(String[] args) {
 
         // Get the commit log files for each project
-        projects = getAllFiles();
-        //projects = new File[]{(new File("SQLDataCollection\\ProjectCommitLogs\\lucene-solr-commits.txt"))}; 
+        //projects = getAllFiles();
+        projects = new File[]{(new File("SQLDataCollection\\ProjectCommitLogs\\oodt-commits.txt"))}; 
 
         projectNames = new String[projects.length];
 
@@ -29,23 +29,23 @@ public class SQLDataExtractor {
         for (int i = 0; i < projects.length; i++) {
             CommitLogParser parser = new CommitLogParser(projects[i]);
             projectNames[i] = getProjectName(projects[i]);
-            System.out.print("Parsing text file for project " + projects[i] + ". ");
+            System.out.print("Parsing project: " + getProjectName(projects[i]) + ". ");
             String[] sqlCommits = parser.getSQLCommits(); // Filter out non-SQL commits
             System.out.println("Parsing complete");
             formatEntries(sqlCommits, projectNames[i]); // Format the remaining commits
         }
 
-        System.out.println("\n\n*** Process completed! ***\n\n*** Output stored as " +  writer.getFileName() + "***");
+        System.out.println("*** Process completed! ***\n\n*** Output stored as " +  writer.getFileName() + "***");
     }
 
     /**
      * Method to format entries into database ready format. Appends to csv file 
      * 
-     * @param sqlCommits the commits that contain sql
-     * @param projectName the 
+     * @param sqlCommits the commits that contain sql.
+     * @param projectName the name of the project.
      */
     private static void formatEntries(String[] sqlCommits, String projectName) {
-        System.out.println("Formatting entries for project: " + projectName + ". ");
+        System.out.print("Formatting entries for project: " + projectName + ". ");
         sqlData = new ArrayList<>();
         int entryCount = 0;
         for (String commit : sqlCommits) {
@@ -56,9 +56,10 @@ public class SQLDataExtractor {
                 entryCount++;
             }
         }
-        System.out.print("Formatting complete - Number of SQL entries: " + entryCount + " ");
+        
+        System.out.println("Formatting complete - Number of SQL entries: " + entryCount);
         writer.writeToCSV(sqlData);
-        System.out.println("Finished writing to CSV");
+        System.out.println("Finished writing to CSV\n");
     }
 
 
