@@ -53,15 +53,18 @@ public class CommitFormatter {
                 if (!checkFileTypeValidity(fileName)) {
                     continue;
                 }
-                String[] entry = new String[8];
+                int[] additionsDeletions = getNumberAdditionsDeletions(fileCodeChanges);
+                String[] entry = new String[10];
                 entry[0] = projectName;
                 entry[1] = commitHash;
                 entry[2] = author;
                 entry[3] = dateTime;
                 entry[4] = fileName;
-                entry[5] = sql;
-                entry[6] = determineSQLCodeContext(fileCodeChanges) ? "1" : "0";
-                entry[7] = determineSQLCodeChange(fileCodeChanges) ? "1" : "0";
+                entry[5] = String.valueOf(additionsDeletions[0]);
+                entry[6] = String.valueOf(additionsDeletions[1]);
+                entry[7] = sql;
+                entry[8] = determineSQLCodeContext(fileCodeChanges) ? "1" : "0";
+                entry[9] = determineSQLCodeChange(fileCodeChanges) ? "1" : "0";
                 result.add(entry);
             }
         }
@@ -317,6 +320,25 @@ public class CommitFormatter {
             }
         }
         return false; // No SQL found in context
+    }
+
+    /**
+     * Given a file's code changes, get the number of additions and deletions.
+     * 
+     * @param fileChanges the file's code changes
+     * @return an array containing the number of additions and deletions
+     */
+    private int[] getNumberAdditionsDeletions(String fileChanges) {
+        int[] result = new int[2];
+        String[] lines = fileChanges.split("\n");
+        for (String line : lines) {
+            if (line.startsWith("+")) {
+                result[0]++;
+            } else if (line.startsWith("-")) {
+                result[1]++;
+            }
+        }
+        return result;
     }
 
     /**
