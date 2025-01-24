@@ -8,7 +8,7 @@ public class CSVFileWriter {
     private BufferedWriter writer;
     private static final String SUB_DIRECTORY = "Datasets";
     private static final String FILE_NAME = "sql-data.csv";
-    private static final String HEADER = "Project Name,Commit Hash,Author,Date Time,File Name,Additions,Deletions,SQL,SQL Context,SQL Change";
+    private static final String HEADER = "Project_Name,Commit_Hash,Author,Date,Time,File_Name,Additions,Deletions,SQL,SQL_Context,SQL_Change";
 
     /**
      * Constructor for CSVFileWriter.

@@ -42,7 +42,7 @@ public class CommitFormatter {
         // Get commit metadata
         String commitHash = getCommitHash();
         String author = getAuthor();
-        String dateTime = getDateTime();
+        String[] dateTime = parseDateTime(getDateTime());
 
         // For each file, turn into row entry if it contains sql
         for (int i = 1; i < commitFileList.length; i++) {
@@ -54,22 +54,27 @@ public class CommitFormatter {
                     continue;
                 }
                 int[] additionsDeletions = getNumberAdditionsDeletions(fileCodeChanges);
-                String[] entry = new String[10];
-                entry[0] = projectName;
-                entry[1] = commitHash;
-                entry[2] = author;
-                entry[3] = dateTime;
-                entry[4] = fileName;
-                entry[5] = String.valueOf(additionsDeletions[0]);
-                entry[6] = String.valueOf(additionsDeletions[1]);
-                entry[7] = sql;
-                entry[8] = determineSQLCodeContext(fileCodeChanges) ? "1" : "0";
-                entry[9] = determineSQLCodeChange(fileCodeChanges) ? "1" : "0";
+                String[] entry = new String[11];
+                entry[0] = makeQuotation(projectName);
+                entry[1] = makeQuotation(commitHash);
+                entry[2] = makeQuotation(author);
+                entry[3] = makeQuotation(dateTime[0]);
+                entry[4] = dateTime[1];
+                entry[5] = makeQuotation(fileName);
+                entry[6] = String.valueOf(additionsDeletions[0]);
+                entry[7] = String.valueOf(additionsDeletions[1]);
+                entry[8] = makeQuotation(sql);
+                entry[9] = determineSQLCodeContext(fileCodeChanges) ? "1" : "0";
+                entry[10] = determineSQLCodeChange(fileCodeChanges) ? "1" : "0";
                 result.add(entry);
             }
         }
 
         return result;
+    }
+
+    private String makeQuotation(String input) {
+        return "\"" + input + "\"";
     }
 
     /**
@@ -89,7 +94,8 @@ public class CommitFormatter {
             int startIndex = matcher.start();
 
             // Skip if string already processed
-            if (startIndex < prevEndIndex) continue;
+            if (startIndex < prevEndIndex)
+                continue;
 
             if (commitPatch.charAt(startIndex - 2) == '/' || commitPatch.charAt(startIndex - 1) == '\'')
                 continue; // if inside a comment block or single quote, skip
@@ -132,11 +138,15 @@ public class CommitFormatter {
                     && !commitPatch.contains("delete from what")) {
                 prevEndIndex = endIndex;
                 String sql = commitPatch.substring(startIndex, endIndex + 1);
+                
+                sql = sql.replace("\"", "\"\"");
+                sql = sql.replace("\'", "\'\'");
 
                 if (sql.contains("*/"))
                     continue; // if inside a comment block, skip
                 if (sql.contains("{") && !sql.contains("}"))
                     continue; // pretty good indication that something went wrong
+
 
                 sqlStatements.append(sql);
                 if (commitPatch.charAt(endIndex) != ';') {
@@ -153,7 +163,8 @@ public class CommitFormatter {
 
     /**
      * Finds the end index of a statement that is embedded in a string.
-     * @param patch the commit patch
+     * 
+     * @param patch      the commit patch
      * @param startIndex the start index of the statement
      * @return the end index of the statement
      */
@@ -164,7 +175,8 @@ public class CommitFormatter {
 
     /**
      * Finds the end index of a statement.
-     * @param patch the commit patch
+     * 
+     * @param patch      the commit patch
      * @param startIndex the start index of the statement
      * @return the end index of the statement
      */
@@ -173,12 +185,12 @@ public class CommitFormatter {
         return endIndex != -1 ? endIndex : -1;
     }
 
-
     /**
      * Finds the end index of a statement that is inside a method.
      * 
      * Find the last unmatched bracket since startindex excludes opening bracket
-     * @param patch the commit patch
+     * 
+     * @param patch      the commit patch
      * @param startIndex the start index of the statement
      * @return the end index of the statement
      */
@@ -202,7 +214,8 @@ public class CommitFormatter {
 
     /**
      * Find the end index of a statement that is an assignment.
-     * @param patch the commit patch
+     * 
+     * @param patch      the commit patch
      * @param startIndex the start index of the statement
      * @return the end index of the statement
      */
@@ -216,6 +229,7 @@ public class CommitFormatter {
 
     /**
      * Removes the '+' and '-' characters from the patch.
+     * 
      * @param commitPatch the commit patch
      * @return the patch without '+' and '-' characters
      */
@@ -363,6 +377,7 @@ public class CommitFormatter {
 
     /**
      * Method to check if the file type is valid (java, sql, sqlpp, json)
+     * 
      * @param fileName the name of the file
      * @return true if the file type is valid, false otherwise
      */
@@ -373,6 +388,23 @@ public class CommitFormatter {
         }
 
         return false;
+    }
+
+    /**
+     * Method to parse the date and time from the metadata
+     * 
+     * @param dateTime the date and time string
+     * @return an array containing the date and time
+     */
+    private String[] parseDateTime(String dateTime) {
+        if (dateTime == null)
+            return new String[] { "", "" };
+        String[] result = new String[2];
+        String[] parts = dateTime.split(" ");
+        result[0] = parts[0] + " " + parts[1] + " " + parts[2] + " " + parts[4];
+        result[1] = parts[3];
+
+        return result;
     }
 
 }
