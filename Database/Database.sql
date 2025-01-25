@@ -1,3 +1,4 @@
+-- Table Creation and Data Insertion for SQL Files
 DROP TABLE IF EXISTS sql_files;
 
 CREATE TABLE sql_files (
@@ -15,4 +16,10 @@ CREATE TABLE sql_files (
     PRIMARY KEY(commit_hash, file_name)
 );
 
-INSERT INTO sql_files SELECT * FROM CSVREAD('C:\\Users\\04sam\\OneDrive\\Documents\\Summer project\\summer-project\\Datasets\\sql-data.csv')
+INSERT INTO sql_files SELECT * FROM CSVREAD('C:\\Users\\04sam\\OneDrive\\Documents\\Summer project\\summer-project\\Datasets\\sql-data.csv');
+
+-- Data summary
+SELECT count(*) FROM sql_files; -- Total number of entries
+SELECT Project_Name, count(*) FROM sql_files GROUP BY(Project_Name); -- Count of files per project
+SELECT Project_Name, AVG(Additions), AVG(Deletions) FROM sql_files GROUP BY(Project_Name); -- Average additions and deletions per project
+SELECT Project_Name, COUNT(DISTINCT(Author)) FROM sql_files GROUP BY(Project_Name); -- Count of unique authors per project
