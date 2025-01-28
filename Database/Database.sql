@@ -23,3 +23,6 @@ SELECT count(*) FROM sql_files; -- Total number of entries
 SELECT Project_Name, count(*) FROM sql_files GROUP BY(Project_Name); -- Count of files per project
 SELECT Project_Name, AVG(Additions), AVG(Deletions) FROM sql_files GROUP BY(Project_Name); -- Average additions and deletions per project
 SELECT Project_Name, COUNT(DISTINCT(Author)) FROM sql_files GROUP BY(Project_Name); -- Count of unique authors per project
+
+SELECT COUNT(DISTINCT(sql)) FROM sql_files GROUP BY(Project_name); -- Count of unique SQL queries per project
+SELECT count(SQL_Change) FROM sql_files WHERE SQL_Change = TRUE GROUP BY(Project_Name); -- Count of files with SQL changes per project

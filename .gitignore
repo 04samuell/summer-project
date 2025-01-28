@@ -1,3 +1,5 @@
 SQLDataCollection/ProjectCommitLogs/
-SQLDataCollection/Results/
+Database/*.class
+Datasets/SQLFiles/*.sql
 *.csv
+lib/*.jar
