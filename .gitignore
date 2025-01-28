@@ -3,3 +3,4 @@ Database/*.class
 Datasets/SQLFiles/*.sql
 *.csv
 lib/*.jar
+SATools/*.txt
