@@ -3,6 +3,7 @@ package Database;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.sql.*;
 import java.util.*;
 
@@ -21,6 +22,8 @@ public class ConnectToH2 {
 
     static List<String> sqlEntries = new ArrayList<>();
     static List<String> projectNames = new ArrayList<>();
+    static List<String> commitHashes = new ArrayList<>();
+    static List<String> fileNames = new ArrayList<>();
 
     public static void main(String[] args) throws SQLException {
         Connection connection = getDatabaseConnection(); // Establish connection to H2 database
@@ -57,10 +60,12 @@ public class ConnectToH2 {
      */
     private static void getSQLEntries(Connection connection) {
         try {
-            ResultSet result = connection.createStatement().executeQuery("SELECT project_name, sql FROM sql_files;");
+            ResultSet result = connection.createStatement().executeQuery("SELECT project_name, commit_hash, file_name, sql FROM sql_files;");
             while (result.next()) {
-                sqlEntries.add(result.getString("sql"));
                 projectNames.add(result.getString("project_name"));
+                commitHashes.add(result.getString("commit_hash"));
+                fileNames.add(result.getString("file_name"));
+                sqlEntries.add(result.getString("sql"));
             }
         } catch (SQLException e) {
             System.err.println("Error getting SQL entries: " + e.getMessage());
@@ -85,8 +90,10 @@ public class ConnectToH2 {
             }
 
             String fileName = "Datasets/SQLFiles/" + projectName + "-" + count + ".sql";
+            String header = "--" + commitHashes.get(i) + "   " + fileNames.get(i) + "\n";
 
-            Files.write(Paths.get(fileName), sqlEntries.get(i).getBytes()); // Write the SQL entry
+            Files.write(Paths.get(fileName), header.getBytes(), StandardOpenOption.CREATE); // Write the header
+            Files.write(Paths.get(fileName), sqlEntries.get(i).getBytes(), StandardOpenOption.APPEND); // Write the SQL entry 
             prevProjectName = projectName;
         }
     }
