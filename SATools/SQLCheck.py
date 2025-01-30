@@ -4,19 +4,16 @@ import glob
 import ToolOutputParser as op
 
 sql_files_directory = "Datasets/SQLFiles"  # Replace with your SQL files directory
-output_filename = "Datasets/sqlint_analysis.csv"  # Replace with your desired output file name
-sql_lint_path = "C:\\Users\\04sam\AppData\\Roaming\\npm\\sql-lint.cmd"
-error_options = "--ignore-errors my-sql-invalid-create-option"
-annoying_text = "must be one of \'\'[\"\"algorithm\"\",\"\"database\"\",\"\"definer\"\",\"\"event\"\",\"\"function\"\",\"\"index\"\",\"\"or\"\",\"\"procedure\"\",\"\"role\"\",\"\"server\"\",\"\"schema\"\",\"\"table\"\",\"\"tablespace\"\",\"\"temporary\"\",\"\"trigger\"\",\"\"user\"\",\"\"unique\"\",\"\"view\"\"]\'\'"
-#error_options = ""
+output_filename = "Datasets/sqlcheck_analysis.csv"  # Replace with your desired output file name
+sql_check_path = "C:\\Users\\04sam\\sqlcheck.exe"
 
 def analyze_sql_files(sql_files_dir, output_file):
-    """Analyzes SQL files using sql-lint and stores the output in a text file."""
+    """Analyzes SQL files using sqlcheck and stores the output in a text file."""
 
     try:
         with open(output_file, "w") as outfile:  # Open file for writing (overwrites existing)
 
-            outfile.write("commit_hash,file_name,lint_output,lint_summary\n")  # Write header to output file
+            outfile.write("commit_hash,file_name,check_output,check_summary\n")  # Write header to output file
 
             sql_files = glob.glob(os.path.join(sql_files_dir, "*.sql"))
             sql_files.sort(key=os.path.getmtime) # Sort based on modification time          
@@ -37,23 +34,28 @@ def analyze_sql_files(sql_files_dir, output_file):
 
                 try: # Run SQLint on the file
                     result = subprocess.run(
-                        [sql_lint_path, sql_file],
+                        [sql_check_path, "-f", sql_file, "-v"],
                         capture_output=True,
-                        text=True,  # Decode output as text
+                        text=False,  # Decode output as text
                         check=False,  # Don't raise exception on non-zero exit code
                     )
-
-                    result_std = result.stdout.replace("\"", "\"\"").replace("\'", "\'\'").replace(annoying_text, "")
-                    lint_summary = op.parse_lint_output(result_std)
-
+                    
+                    result_std = result.stdout.decode("utf-8", errors='replace').replace("\"", "\"\"").replace("\'", "\'\'")
+                    #check_summary = op.parse_check_output(result_std)
+                    check_summary = "NULL"
                     if result_std == "":
                         result_std = "NULL"
-                        lint_summary = "NULL"
+                        check_summary = "NULL"
 
-                    outfile.write(f"{hash},{filename},{make_quotation(result_std)},{lint_summary}\n")
+                    
+                    
+                    #outfile.write(f"{hash},{filename},{make_quotation(result_std)},{""}\n")
+      
+                    result_std = result_std.encode("charmap", errors="replace").decode("charmap") #Replace problem characters
+                    outfile.write(f"{hash},{filename},{make_quotation(result_std)},{""}\n")
 
                 except FileNotFoundError:
-                    print("Error: sql-lint not found. Please install sql-lint using 'npm install -g sql-lint'.")
+                    print("Error: sqlcheck not found. Please install.")
                     return
                 
                 except subprocess.CalledProcessError as e:

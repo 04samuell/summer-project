@@ -44,6 +44,19 @@ CREATE TABLE sql_lint (
 
 INSERT INTO sql_lint SELECT * FROM CSVREAD('C:\\Users\\04sam\\OneDrive\\Documents\\Summer project\\summer-project\\Datasets\\sqlint_analysis.csv');
 
+-- Table Createion and Data Insertion for sql check
+DROP TABLE IF EXISTS sql_check;
+
+CREATE TABLE sql_check (
+    commit_hash VARCHAR(100),
+    file_name VARCHAR(500),
+    check_output CLOB,
+    check_summary CLOB,
+    PRIMARY KEY(commit_hash, file_name)
+);
+
+INSERT INTO sql_lint SELECT * FROM CSVREAD('C:\\Users\\04sam\\OneDrive\\Documents\\Summer project\\summer-project\\Datasets\\sqlcheck_analysis.csv');
+
 -- Data summary
 SELECT count(*) FROM sql_files; -- Total number of entries
 SELECT Project_Name, count(*) FROM sql_files GROUP BY(Project_Name); -- Count of files per project
