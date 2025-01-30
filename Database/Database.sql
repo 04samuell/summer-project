@@ -24,11 +24,25 @@ DROP TABLE IF EXISTS sql_fluff;
 CREATE TABLE sql_fluff (
     commit_hash VARCHAR(100),
     file_name VARCHAR(500),
-    output CLOB,
+    fluff_output CLOB,
+    fluff_summary CLOB,
     PRIMARY KEY(commit_hash, file_name)
 );
 
-INSERT INTO sql_fluff SELECT * FROM CSVREAD('C:\\Users\\04sam\\OneDrive\\Documents\\Summer project\\summer-project\\SATools\\sqlfluff_analysis.csv');
+INSERT INTO sql_fluff SELECT * FROM CSVREAD('C:\\Users\\04sam\\OneDrive\\Documents\\Summer project\\summer-project\\Datasets\\sqlfluff_analysis.csv');
+
+-- Table Createion and Data Insertion for sql-lint
+DROP TABLE IF EXISTS sql_lint;
+
+CREATE TABLE sql_lint (
+    commit_hash VARCHAR(100),
+    file_name VARCHAR(500),
+    lint_output CLOB,
+    lint_summary CLOB,
+    PRIMARY KEY(commit_hash, file_name)
+);
+
+INSERT INTO sql_lint SELECT * FROM CSVREAD('C:\\Users\\04sam\\OneDrive\\Documents\\Summer project\\summer-project\\Datasets\\sqlint_analysis.csv');
 
 -- Data summary
 SELECT count(*) FROM sql_files; -- Total number of entries
