@@ -46,11 +46,13 @@ def analyze_sql_files(sql_files_dir, output_file):
                     result_std = result.stdout.replace("\"", "\"\"").replace("\'", "\'\'").replace(annoying_text, "")
                     lint_summary = op.parse_lint_output(result_std)
 
-                    if result_std == "":
+                    if result_std != "":
+                        result_std = make_quotation(result_std)
+                    else:
                         result_std = "NULL"
                         lint_summary = "NULL"
 
-                    outfile.write(f"{hash},{filename},{make_quotation(result_std)},{lint_summary}\n")
+                    outfile.write(f"{hash},{filename},{result_std},{lint_summary}\n")
 
                 except FileNotFoundError:
                     print("Error: sql-lint not found. Please install sql-lint using 'npm install -g sql-lint'.")

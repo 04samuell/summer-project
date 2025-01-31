@@ -55,7 +55,7 @@ CREATE TABLE sql_check (
     PRIMARY KEY(commit_hash, file_name)
 );
 
-INSERT INTO sql_lint SELECT * FROM CSVREAD('C:\\Users\\04sam\\OneDrive\\Documents\\Summer project\\summer-project\\Datasets\\sqlcheck_analysis.csv');
+INSERT INTO sql_check SELECT * FROM CSVREAD('C:\\Users\\04sam\\OneDrive\\Documents\\Summer project\\summer-project\\Datasets\\sqlcheck_analysis.csv');
 
 -- Data summary
 SELECT count(*) FROM sql_files; -- Total number of entries

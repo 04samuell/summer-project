@@ -32,27 +32,26 @@ def analyze_sql_files(sql_files_dir, output_file):
                         hash = make_quotation(metadata[0].strip())
                         filename = make_quotation(metadata[1].strip())
 
-                try: # Run SQLint on the file
+                try: # Run SQLCheck on the file
                     result = subprocess.run(
                         [sql_check_path, "-f", sql_file, "-v"],
                         capture_output=True,
-                        text=False,  # Decode output as text
+                        text=False,  # Don't decode output as text
                         check=False,  # Don't raise exception on non-zero exit code
                     )
                     
                     result_std = result.stdout.decode("utf-8", errors='replace').replace("\"", "\"\"").replace("\'", "\'\'")
-                    #check_summary = op.parse_check_output(result_std)
-                    check_summary = "NULL"
-                    if result_std == "":
-                        result_std = "NULL"
-                        check_summary = "NULL"
+                    result_formatted = op.remove_unncessary_check_info(result_std)
 
+                    if result_formatted != "No issues found":
+                        result_formatted = make_quotation(result_formatted)
+                        check_summary = op.parse_check_output(result_std)
+                    else:
+                        result_formatted = "NULL"
+                        check_summary = "NULL"
                     
-                    
-                    #outfile.write(f"{hash},{filename},{make_quotation(result_std)},{""}\n")
-      
-                    result_std = result_std.encode("charmap", errors="replace").decode("charmap") #Replace problem characters
-                    outfile.write(f"{hash},{filename},{make_quotation(result_std)},{""}\n")
+                    result_std = result_std.encode("charmap", errors="replace").decode("charmap") # Replace problem characters
+                    outfile.write(f"{hash},{filename},{result_formatted},{check_summary}\n")
 
                 except FileNotFoundError:
                     print("Error: sqlcheck not found. Please install.")

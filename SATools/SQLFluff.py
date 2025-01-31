@@ -40,8 +40,16 @@ def analyze_sql_files(sql_files_dir, output_file):
                     )
 
                     result_std = result.stdout.replace("\"", "\"\"").replace("\'", "\'\'")
-                    fluff_summary = op.parse_fluff_output(result_std)
-                    outfile.write(f"{hash},{filename},{make_quotation(result_std)},{make_quotation(fluff_summary)}\n")  # Write commit hash, file name, and sqlfluff output to output file
+
+                    if result_std.__contains__("PASS"):
+                        result_std = "NULL"
+                        fluff_summary = "NULL"
+                    else:
+                        result_std = make_quotation(result_std)
+                        fluff_summary = op.parse_fluff_output(result_std)
+
+                    #fluff_summary = op.parse_fluff_output(result_std)
+                    outfile.write(f"{hash},{filename},{result_std},{fluff_summary}\n")  # Write commit hash, file name, and sqlfluff output to output file
 
                 except subprocess.CalledProcessError as e:
 
