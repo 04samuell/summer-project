@@ -34,6 +34,7 @@ def parse_lint_output(output: str) -> str:
         start = error.find("[sql-lint: ") + len("[sql-lint: ")
         end = error.find("]")
         error_code = error[start:end].strip()
+
         if error_code in error_codes_count:
             error_codes_count[error_code] += 1
         else:
@@ -59,6 +60,7 @@ def parse_check_output(output: str) -> str:
     for line in lines:
         if line.startswith("[Datasets/SQLFiles"):
             error_code = line.split(")")[2].strip()
+            
             if error_code in error_codes_count:
                 error_codes_count[error_code] += 1
             else:
