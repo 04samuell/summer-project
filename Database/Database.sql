@@ -68,6 +68,14 @@ SELECT count(SQL_Change) FROM sql_files WHERE SQL_Change = TRUE GROUP BY(Project
 
 
 -- Joins
-SELECT project_name, sql_files.commit_hash, sql_files.file_name, sql, output 
+SELECT project_name, sql_files.commit_hash, sql_files.file_name, fluff_summary 
 FROM sql_files 
 INNER JOIN sql_fluff ON sql_files.commit_hash = sql_fluff.commit_hash AND sql_files.file_name = sql_fluff.file_name; -- Join sql files with sqlfluff
+
+SELECT project_name, sql_files.commit_hash, sql_files.file_name, lint_summary 
+FROM sql_files 
+INNER JOIN sql_lint ON sql_files.commit_hash = sql_lint.commit_hash AND sql_files.file_name = sql_lint.file_name; -- Join sql files with sqlint
+
+SELECT project_name, sql_files.commit_hash, sql_files.file_name, check_summary
+FROM sql_files 
+INNER JOIN sql_check ON sql_files.commit_hash = sql_check.commit_hash AND sql_files.file_name = sql_check.file_name; -- Join sql files with sqlcheck

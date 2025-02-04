@@ -16,9 +16,9 @@ import java.util.*;
  */
 public class ConnectToH2 {
 
-    static final String JDBC_URL = "jdbc:h2:C:/Users/04sam/sql_project";
-    static final String USERNAME = "sa";
-    static final String PASSWORD = "";
+    public static final String JDBC_URL = "jdbc:h2:C:/Users/04sam/sql_project";
+    public static final String USERNAME = "sa";
+    public static final String PASSWORD = "";
 
     static List<String> sqlEntries = new ArrayList<>();
     static List<String> projectNames = new ArrayList<>();
@@ -42,7 +42,7 @@ public class ConnectToH2 {
      * Establish connection to H2 database.
      * @return Connection object to H2 database
      */
-    private static Connection getDatabaseConnection() {
+    public static Connection getDatabaseConnection() {
         Connection dbConnection;
         try {
             dbConnection = DriverManager.getConnection(JDBC_URL, USERNAME, PASSWORD);
