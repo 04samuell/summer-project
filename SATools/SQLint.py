@@ -44,10 +44,12 @@ def analyze_sql_files(sql_files_dir, output_file):
                     )
 
                     result_std = result.stdout.replace("\"", "\"\"").replace("\'", "\'\'").replace(annoying_text, "")
-                    lint_summary = op.parse_lint_output(result_std)
 
-                    if result_std != "":
+                    if result_std != "" and not result_std.__contains__("sql-lint was unable to lint"):
                         result_std = make_quotation(result_std)
+                        lint_summary = op.parse_lint_output(result_std)
+                        lint_summary = lint_summary.replace("\"", "\"\"").replace("\'", "\'\'")
+                        lint_summary = make_quotation(lint_summary)
                     else:
                         result_std = "NULL"
                         lint_summary = "NULL"

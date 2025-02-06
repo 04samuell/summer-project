@@ -46,6 +46,8 @@ def analyze_sql_files(sql_files_dir, output_file):
                     if result_formatted != "No issues found":
                         result_formatted = make_quotation(result_formatted)
                         check_summary = op.parse_check_output(result_std)
+                        check_summary = check_summary.replace("\"", "\"\"").replace("\'", "\'\'")
+                        check_summary = make_quotation(check_summary)
                     else:
                         result_formatted = "NULL"
                         check_summary = "NULL"

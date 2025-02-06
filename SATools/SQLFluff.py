@@ -47,6 +47,8 @@ def analyze_sql_files(sql_files_dir, output_file):
                     else:
                         result_std = make_quotation(result_std)
                         fluff_summary = op.parse_fluff_output(result_std)
+                        fluff_summary = fluff_summary.replace("\"", "\"\"").replace("\'", "\'\'")
+                        fluff_summary = make_quotation(fluff_summary)
 
                     #fluff_summary = op.parse_fluff_output(result_std)
                     outfile.write(f"{hash},{filename},{result_std},{fluff_summary}\n")  # Write commit hash, file name, and sqlfluff output to output file
