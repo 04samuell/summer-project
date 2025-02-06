@@ -28,8 +28,13 @@ public class ErrorCounter {
         summariseErrors(); // Summarise errors
 
         printHashMap(errors, "Total Errors"); // Print total error statistics
+
+        listTopErrors(); // List top 5 errors
     }
 
+    /**
+     * Summarise the errors for each project
+     */
     private static void summariseErrors() {
         String prevProject = "";
         HashMap<String, Integer> projectErrors = new HashMap<>();
@@ -65,7 +70,7 @@ public class ErrorCounter {
         errorsSplit = Arrays.copyOf(errorsSplit, errorsSplit.length - 1); // Remove last element which is always TOTAL
         for (String keyValuePair : errorsSplit) {
             String[] kV = keyValuePair.split(":");
-            String error = kV[0].strip();
+            String error = removeQutationMarks(kV[0].strip());
             int count = Integer.parseInt(kV[1].strip());
             fileTotal += count;
             totalErrorCount += count;
@@ -102,8 +107,22 @@ public class ErrorCounter {
         }
     }
 
+    /**
+     * Remove the curly braces from the summary 
+     * @param summary the summary to remove the curly braces from
+     * @return the summary without the curly braces
+     */
     private static String removeCurlyBraces(String summary) {
         return summary.substring(1, summary.length() - 1);
+    }
+
+    /**
+     * Remove the quotation marks from the summary
+     * @param summary the summary to remove the quotation marks from
+     * @return the summary without the quotation marks
+     */
+    private static String removeQutationMarks(String summary) {
+        return summary.substring(2, summary.length() - 2);
     }
 
     /**
@@ -120,6 +139,15 @@ public class ErrorCounter {
         for (Map.Entry<String, Integer> entry : map.entrySet()) {
             System.out.println(entry.getKey() + ": " + entry.getValue());
         }
+    }
+
+    /**
+     * Method to list the top 5 most frequent errors
+     */
+    private static void listTopErrors() {
+        System.out.println("\n" + "*".repeat(10) + " Top Errors " + "*".repeat(10) + "\n");
+        errors.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).limit(6)
+                .forEach(System.out::println);
     }
 
 }
