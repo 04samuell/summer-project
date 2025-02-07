@@ -18,19 +18,6 @@ CREATE TABLE sql_files (
 
 INSERT INTO sql_files SELECT * FROM CSVREAD('C:\\Users\\04sam\\OneDrive\\Documents\\Summer project\\summer-project\\Datasets\\sql-data.csv');
 
--- Table Createion and Data Insertion for SQLFluff
-DROP TABLE IF EXISTS sql_fluff;
-
-CREATE TABLE sql_fluff (
-    commit_hash VARCHAR(100),
-    file_name VARCHAR(500),
-    fluff_output CLOB,
-    fluff_summary CLOB,
-    PRIMARY KEY(commit_hash, file_name)
-);
-
-INSERT INTO sql_fluff SELECT * FROM CSVREAD('C:\\Users\\04sam\\OneDrive\\Documents\\Summer project\\summer-project\\Datasets\\sqlfluff_analysis.csv');
-
 -- Table Createion and Data Insertion for sql-lint
 DROP TABLE IF EXISTS sql_lint;
 
@@ -43,6 +30,19 @@ CREATE TABLE sql_lint (
 );
 
 INSERT INTO sql_lint SELECT * FROM CSVREAD('C:\\Users\\04sam\\OneDrive\\Documents\\Summer project\\summer-project\\Datasets\\sqlint_analysis.csv');
+
+-- Table Createion and Data Insertion for SQLFluff
+DROP TABLE IF EXISTS sql_fluff;
+
+CREATE TABLE sql_fluff (
+    commit_hash VARCHAR(100),
+    file_name VARCHAR(500),
+    fluff_output CLOB,
+    fluff_summary CLOB,
+    PRIMARY KEY(commit_hash, file_name)
+);
+
+INSERT INTO sql_fluff SELECT * FROM CSVREAD('C:\\Users\\04sam\\OneDrive\\Documents\\Summer project\\summer-project\\Datasets\\sqlfluff_analysis.csv');
 
 -- Table Createion and Data Insertion for sql check
 DROP TABLE IF EXISTS sql_check;
@@ -68,14 +68,21 @@ SELECT count(SQL_Change) FROM sql_files WHERE SQL_Change = TRUE GROUP BY(Project
 
 
 -- Joins
-SELECT project_name, sql_files.commit_hash, sql_files.file_name, fluff_summary 
-FROM sql_files 
-INNER JOIN sql_fluff ON sql_files.commit_hash = sql_fluff.commit_hash AND sql_files.file_name = sql_fluff.file_name; -- Join sql files with sqlfluff
-
 SELECT project_name, sql_files.commit_hash, sql_files.file_name, lint_summary 
 FROM sql_files 
 INNER JOIN sql_lint ON sql_files.commit_hash = sql_lint.commit_hash AND sql_files.file_name = sql_lint.file_name; -- Join sql files with sqlint
 
+SELECT project_name, sql_files.commit_hash, sql_files.file_name, fluff_summary 
+FROM sql_files 
+INNER JOIN sql_fluff ON sql_files.commit_hash = sql_fluff.commit_hash AND sql_files.file_name = sql_fluff.file_name; -- Join sql files with sqlfluff
+
 SELECT project_name, sql_files.commit_hash, sql_files.file_name, check_summary
 FROM sql_files 
 INNER JOIN sql_check ON sql_files.commit_hash = sql_check.commit_hash AND sql_files.file_name = sql_check.file_name; -- Join sql files with sqlcheck
+
+-- Queries for particular violations
+SELECT Lint_Summary, Lint_Output FROM SQL_Lint WHERE Lint_Summary LIKE '%Invalid-Create-Option%'; -- SQLLint
+
+SELECT Fluff_Summary, Fluff_Output FROM SQL_Fluff WHERE Fluff_Summary LIKE '%LT05%'; -- SQLFluff
+
+SELECT Check_Summary, Check_Output FROM SQL_Check WHERE Check_Summary LIKE '%LT05%'; -- SQLCheck

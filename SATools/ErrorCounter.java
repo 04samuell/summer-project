@@ -75,8 +75,8 @@ public class ErrorCounter {
             fileTotal += count;
             totalErrorCount += count;
 
-            projectErrors.put(error, projectErrors.getOrDefault(error, 0) + fileTotal); // Update project error statistics
-            errors.put(error, errors.getOrDefault(error, 0) + fileTotal); // Update total error statistics
+            projectErrors.put(error, projectErrors.getOrDefault(error, 0) + count); // Update project error statistics
+            errors.put(error, errors.getOrDefault(error, 0) + count); // Update total error statistics
         }
 
         // Update totals
