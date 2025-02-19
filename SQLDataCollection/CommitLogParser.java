@@ -13,7 +13,6 @@ public class CommitLogParser {
     static final String COMMIT_SPLITTER = "(?<=\\n)commit\\s+";
 
     static final String SQL_PATTERN = "(?i)" +
-            "(COPY\\s\\()|" +
             "(SELECT\\s+[^\\s]+\\s+FROM\\s+[^\\s]+|" +
             "SELECT\\sDISTINCT+[^\\s]+\\s+FROM\\s+[^\\s]+|" +
             "INSERT\\s+INTO\\s+[^\\s]+\\s+VALUES\\s+\\(.*\\)|" +

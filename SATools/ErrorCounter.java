@@ -24,8 +24,8 @@ public class ErrorCounter {
         errors.put("TOTAL", 0); // Initialise total error count
 
         Connection connection = Database.ConnectToH2.getDatabaseConnection(); // Establish connection to H2 database
-        getErrorCodes(connection, LINT_JOIN, LINT_SUMMARY); // Get error codes from database
-        summariseErrors(); // Summarise errors
+        getErrorCodes(connection, CHECK_JOIN, CHECK_SUMMARY); // Get error codes from database
+        summariseErrors(); // Summarise errors 
 
         printHashMap(errors, "Total Errors"); // Print total error statistics
 
@@ -48,7 +48,7 @@ public class ErrorCounter {
                 projectErrors.put("TOTAL", 0);
             }
 
-            if (!toolSummary.contains("NULL")) {
+            if (!toolSummary.contains("NULL") && !toolSummary.contains("PRS")) { // remove and clause for results with PRS
                 processError(toolSummary, projectErrors);
             }
 
@@ -146,7 +146,7 @@ public class ErrorCounter {
      */
     private static void listTopErrors() {
         System.out.println("\n" + "*".repeat(10) + " Top Errors " + "*".repeat(10) + "\n");
-        errors.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).limit(6)
+        errors.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).limit(8)
                 .forEach(System.out::println);
     }
 

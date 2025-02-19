@@ -81,23 +81,23 @@ FROM sql_files
 INNER JOIN sql_check ON sql_files.commit_hash = sql_check.commit_hash AND sql_files.file_name = sql_check.file_name; -- Join sql files with sqlcheck
 
 -- Queries for particular violations
-SELECT sql, lint_summary FROM (
+SELECT project_name, sql, lint_summary FROM (
     SELECT project_name, sql_files.sql, sql_files.commit_hash, sql_files.file_name, lint_summary 
     FROM sql_files 
     INNER JOIN sql_lint ON sql_files.commit_hash = sql_lint.commit_hash AND sql_files.file_name = sql_lint.file_name 
 )
-WHERE Lint_Summary LIKE '%invalid-create-option%' -- SQLLint
+WHERE Lint_Summary LIKE '%invalid-create-option%' AND Project_Name NOT LIKE '%asterixdb%'; -- SQLLint
 
-SELECT sql, Fluff_summary FROM (
+SELECT project_name, sql, Fluff_summary FROM (
     SELECT project_name, sql_files.sql, sql_files.commit_hash, sql_files.file_name, fluff_summary 
     FROM sql_files 
     INNER JOIN sql_fluff ON sql_files.commit_hash = sql_fluff.commit_hash AND sql_files.file_name = sql_fluff.file_name 
 )
-WHERE Fluff_Summary LIKE '%LT05%' -- SQLFluff
+WHERE Fluff_Summary LIKE '%LT05%' AND Project_Name NOT LIKE '%asterixdb%'; -- SQLFluff
 
-SELECT sql, Check_summary FROM (
+SELECT project_name, sql, Check_summary FROM (
     SELECT project_name, sql_files.sql, sql_files.commit_hash, sql_files.file_name, check_summary 
     FROM sql_files 
     INNER JOIN sql_check ON sql_files.commit_hash = sql_check.commit_hash AND sql_files.file_name = sql_check.file_name 
 )
-WHERE Fluff_Summary LIKE '%Index Attribute Order%' -- SQLCheck
+WHERE Check_Summary LIKE '%Index Attribute Order%' AND Project_Name NOT LIKE '%asterixdb%'; -- SQLCheck
