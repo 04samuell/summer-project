@@ -19,12 +19,21 @@ public class ErrorCounter {
     static final String LINT_SUMMARY = "lint_summary";
     static final String CHECK_SUMMARY = "check_summary";
 
+    static final String LINT = "LINT";
+    static final String FLUFF = "FLUFF";
+    static final String CHECK = "CHECK";
+
+    private static ErrorRowCreator errorRowCreator;
+
     public static void main(String[] args) {
 
         errors.put("TOTAL", 0); // Initialise total error count
 
         Connection connection = Database.ConnectToH2.getDatabaseConnection(); // Establish connection to H2 database
-        getErrorCodes(connection, CHECK_JOIN, CHECK_SUMMARY); // Get error codes from database
+
+        errorRowCreator = new ErrorRowCreator(LINT, connection);
+
+        getErrorCodes(connection, LINT_JOIN, LINT_SUMMARY); // Get error codes from database
         summariseErrors(); // Summarise errors 
 
         printHashMap(errors, "Total Errors"); // Print total error statistics
@@ -49,7 +58,7 @@ public class ErrorCounter {
             }
 
             if (!toolSummary.contains("NULL") && !toolSummary.contains("PRS")) { // remove and clause for results with PRS
-                processError(toolSummary, projectErrors);
+                processError(projectName, toolSummary, projectErrors);
             }
 
             prevProject = projectName;
@@ -64,7 +73,7 @@ public class ErrorCounter {
      * @param summary       the summary of errors
      * @param projectErrors the hashmap of errors for a project
      */
-    private static void processError(String summary, HashMap<String, Integer> projectErrors) {
+    private static void processError(String projectName, String summary, HashMap<String, Integer> projectErrors) {
         int fileTotal = 0;
         String[] errorsSplit = summary.split(",");
         errorsSplit = Arrays.copyOf(errorsSplit, errorsSplit.length - 1); // Remove last element which is always TOTAL
@@ -72,6 +81,10 @@ public class ErrorCounter {
             String[] kV = keyValuePair.split(":");
             String error = removeQutationMarks(kV[0].strip());
             int count = Integer.parseInt(kV[1].strip());
+
+            // add to error database (project, error, count, "FLUFF")
+            errorRowCreator.createErrorRow(projectName, error, count);
+
             fileTotal += count;
             totalErrorCount += count;
 

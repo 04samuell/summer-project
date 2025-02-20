@@ -101,3 +101,21 @@ SELECT project_name, sql, Check_summary FROM (
     INNER JOIN sql_check ON sql_files.commit_hash = sql_check.commit_hash AND sql_files.file_name = sql_check.file_name 
 )
 WHERE Check_Summary LIKE '%Index Attribute Order%' AND Project_Name NOT LIKE '%asterixdb%'; -- SQLCheck
+
+
+-- Error Summary
+SELECT project_name, error, sum(count) FROM LINT_ERROR_ROWS 
+WHERE project_name LIKE '%asterixdb%'
+GROUP BY error -- SQLLint
+
+SELECT project_name, error, sum(count) FROM FLUFF_ERROR_ROWS 
+WHERE project_name LIKE '%asterixdb%'
+GROUP BY error -- SQLFluff
+
+SELECT project_name, error, sum(count) FROM CHECK_ERROR_ROWS 
+WHERE project_name LIKE '%asterixdb%' 
+GROUP BY error -- SQLCheck
+
+-- copy + paste into excel (project by project)
+-- highlight table then
+-- From table/range -> select error col -> Transform tab -> pivot column -> values from sum(count) --> Summary table complete
