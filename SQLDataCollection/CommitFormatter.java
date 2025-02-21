@@ -135,18 +135,19 @@ public class CommitFormatter {
 
             // Append the SQL statement to the result
             if (endIndex != -1 && !commitPatch.contains("SELECT * FROM ") && !commitPatch.contains("delete from the")
-                    && !commitPatch.contains("delete from what")) {
+                    && !commitPatch.contains("delete from what")) { // if end index is -1 then the statement is not
+                                                                    // complete, other checks are to filter out some
+                                                                    // common false positives
                 prevEndIndex = endIndex;
                 String sql = commitPatch.substring(startIndex, endIndex + 1);
-                
+
                 sql = sql.replace("\"", "\"\"");
                 sql = sql.replace("\'", "\'\'");
 
                 if (sql.contains("*/"))
                     continue; // if inside a comment block, skip
                 if (sql.contains("{") && !sql.contains("}"))
-                    continue; // pretty good indication that something went wrong
-
+                    continue; // inside curly braces is pretty good indication that something went wrong
 
                 sqlStatements.append(sql);
                 if (commitPatch.charAt(endIndex) != ';') {
