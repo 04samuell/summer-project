@@ -1,4 +1,4 @@
-SQLDataCollection/ProjectCommitLogs/
+SQLDataCollection/ProjectCommitLogs/*.txt
 Database/*.class
 Datasets/SQLFiles/*.sql
 *.csv
