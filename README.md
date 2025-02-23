@@ -24,7 +24,7 @@ The list of classes and their purpose is detailed below:
 ## Database
 This folder contains the code used to add to and query the database. 
   - <code>Shema.sql</code>: This SQL file contained all the SQL statement used to establish tables and upload them to the database.
-  - <coee>Queries.sql</code>: This file contained all the SQL statements I used to query the database and produce summary data which was used in my analysis and final report.
+  - <code>Queries.sql</code>: This file contained all the SQL statements I used to query the database and produce summary data which was used in my analysis and final report.
   - <code>ConnectToH2.java</code>: This file contained the logic to connect to and query the database programatically. This class was used by otherclasses in the SATools folder to establish a database connection. It also contained the logic to put all the SQL statements from the dataset into their own seperate <code>.sql</code> file. After running this class, a new subdirectory is created inside the <code>datasets</code> directory which contains all the SQL entries in the database (including identifying information - commit hash and filename) inside their own <code>.sql</code> file.
 
 ## SATools
