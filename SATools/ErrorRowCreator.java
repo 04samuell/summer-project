@@ -52,17 +52,17 @@ public class ErrorRowCreator {
      * @param error the error
      * @param count the count of the error
      */
-    public void createErrorRow(String projectName, String error, int count) {
+    public void createErrorRow(String commitHash, String fileName, String projectName, String error, int count) {
 
         switch (this.tool) {
             case "LINT":
-                createLintErrorRowEntry(projectName, error, count);
+                createLintErrorRowEntry(commitHash, fileName, projectName, error, count);
                 break;
             case "FLUFF":
-                createFluffErrorRowEntry(projectName, error, count);
+                createFluffErrorRowEntry(commitHash, fileName, projectName, error, count);
                 break;
             case "CHECK":
-                createCheckErrorRowEntry(projectName, error, count);
+                createCheckErrorRowEntry(commitHash, fileName, projectName, error, count);
                 break;
             default:
                 System.out.println("Invalid tool: " + tool);
@@ -75,8 +75,9 @@ public class ErrorRowCreator {
      * @param error the error
      * @param count the count of the error
      */
-    private void createLintErrorRowEntry(String projectName, String error, int count) {
-        String insertLintQuery = "INSERT INTO lint_error_rows (project_name, error, count) VALUES ('" + projectName + "', '" + error + "', " + count + ");";
+    private void createLintErrorRowEntry(String commitHash, String fileName, String projectName, String error, int count) {
+        String insertLintQuery = "INSERT INTO lint_error_rows (commit_hash, file_name, project_name, error, count) VALUES ('" + commitHash + "', '" + fileName + "', '" + projectName + "', '" + error + "', " + count + ");";
+
         executeQuery(insertLintQuery);
     }
 
@@ -86,8 +87,8 @@ public class ErrorRowCreator {
      * @param error the error
      * @param count the count of the error
      */
-    private void createFluffErrorRowEntry(String projectName, String error, int count) {
-        String insertFluffQuery = "INSERT INTO fluff_error_rows (project_name, error, count) VALUES ('" + projectName + "', '" + error + "', " + count + ");";
+    private void createFluffErrorRowEntry(String commitHash, String fileName, String projectName, String error, int count) {
+        String insertFluffQuery = "INSERT INTO fluff_error_rows (commit_hash, file_name, project_name, error, count) VALUES ('" + commitHash + "', '" + fileName + "', '" + projectName + "', '" + error + "', " + count + ");";
         executeQuery(insertFluffQuery);
     }
 
@@ -97,8 +98,8 @@ public class ErrorRowCreator {
      * @param error the error
      * @param count the count of the error
      */
-    private void createCheckErrorRowEntry(String projectName, String error, int count) {
-        String insertCheckQuery = "INSERT INTO check_error_rows (project_name, error, count) VALUES ('" + projectName + "', '" + error + "', " + count + ");";
+    private void createCheckErrorRowEntry(String commitHash, String fileName, String projectName, String error, int count) {
+        String insertCheckQuery = "INSERT INTO check_error_rows (commit_hash, file_name, project_name, error, count) VALUES ('" + commitHash + "', '" + fileName + "', '" + projectName + "', '" + error + "', " + count + ");";
         executeQuery(insertCheckQuery);
     }
 
@@ -106,7 +107,8 @@ public class ErrorRowCreator {
      * Create the lint error row table
      */
     private void createLintErrorRowTable() {
-        String createLintQuery = "CREATE TABLE lint_error_rows (project_name VARCHAR(255), error VARCHAR(255), count INT);";
+        executeQuery("DROP TABLE IF EXISTS lint_error_rows;");
+        String createLintQuery = "CREATE TABLE IF NOT EXISTS lint_error_rows (commit_hash VARCHAR(255), file_name VARCHAR(255), project_name VARCHAR(255), error VARCHAR(255), count INT);";
         executeQuery(createLintQuery);
     }
 
@@ -114,7 +116,8 @@ public class ErrorRowCreator {
      * Create the fluff error row table
      */
     private void createFluffErrorRowTable() {
-        String createFluffQuery = "CREATE TABLE fluff_error_rows (project_name VARCHAR(255), error VARCHAR(255), count INT);";
+        executeQuery("DROP TABLE IF EXISTS fluff_error_rows;");
+        String createFluffQuery = "CREATE TABLE fluff_error_rows (commit_hash VARCHAR(255), file_name VARCHAR(255), project_name VARCHAR(255), error VARCHAR(255), count INT);";
         executeQuery(createFluffQuery);
     }
 
@@ -122,7 +125,8 @@ public class ErrorRowCreator {
      * Create the check error row table
      */
     private void createCheckErrorRowTable() {
-        String createCheckQuery = "CREATE TABLE check_error_rows (project_name VARCHAR(255), error VARCHAR(255), count INT);";
+        executeQuery("DROP TABLE IF EXISTS check_error_rows;");
+        String createCheckQuery = "CREATE TABLE check_error_rows (commit_hash VARCHAR(255), file_name VARCHAR(255), project_name VARCHAR(255), error VARCHAR(255), count INT);";
         executeQuery(createCheckQuery);
     }
 

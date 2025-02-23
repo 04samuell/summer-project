@@ -6,14 +6,16 @@ import java.util.*;
 public class ErrorCounter {
 
     static List<String> projectNames = new ArrayList<String>();
+    static List<String> commitHashes = new ArrayList<String>();
+    static List<String> fileNames = new ArrayList<String>();
     static List<String> toolSummaries = new ArrayList<String>();
     static HashMap<String, Integer> errors = new HashMap<>();
 
     static int totalErrorCount = 0;
 
-    static final String FLUFF_JOIN = "SELECT project_name, fluff_summary FROM sql_files INNER JOIN sql_fluff ON sql_files.commit_hash = sql_fluff.commit_hash AND sql_files.file_name = sql_fluff.file_name";
-    static final String LINT_JOIN = "SELECT project_name, sql_files.commit_hash, sql_files.file_name, lint_summary FROM sql_files INNER JOIN sql_lint ON sql_files.commit_hash = sql_lint.commit_hash AND sql_files.file_name = sql_lint.file_name";
-    static final String CHECK_JOIN = "SELECT project_name, sql_files.commit_hash, sql_files.file_name, check_summary FROM sql_files INNER JOIN sql_check ON sql_files.commit_hash = sql_check.commit_hash AND sql_files.file_name = sql_check.file_name";
+    static final String FLUFF_JOIN = "SELECT sql_files.commit_hash, sql_files.file_name, project_name, fluff_summary FROM sql_files INNER JOIN sql_fluff ON sql_files.commit_hash = sql_fluff.commit_hash AND sql_files.file_name = sql_fluff.file_name";
+    static final String LINT_JOIN = "SELECT sql_files.commit_hash, sql_files.file_name, project_name, sql_files.commit_hash, sql_files.file_name, lint_summary FROM sql_files INNER JOIN sql_lint ON sql_files.commit_hash = sql_lint.commit_hash AND sql_files.file_name = sql_lint.file_name";
+    static final String CHECK_JOIN = "SELECT sql_files.commit_hash, sql_files.file_name, project_name, sql_files.commit_hash, sql_files.file_name, check_summary FROM sql_files INNER JOIN sql_check ON sql_files.commit_hash = sql_check.commit_hash AND sql_files.file_name = sql_check.file_name";
 
     static final String FLUFF_SUMMARY = "fluff_summary";
     static final String LINT_SUMMARY = "lint_summary";
@@ -49,6 +51,8 @@ public class ErrorCounter {
         HashMap<String, Integer> projectErrors = new HashMap<>();
         for (int i = 0; i < projectNames.size(); i++) {
             String projectName = projectNames.get(i);
+            String commitHash = commitHashes.get(i);
+            String fileName = fileNames.get(i);
             String toolSummary = toolSummaries.get(i);
 
             if (!projectName.equals(prevProject) && !prevProject.isEmpty()) {
@@ -58,7 +62,7 @@ public class ErrorCounter {
             }
 
             if (!toolSummary.contains("NULL") && !toolSummary.contains("PRS")) { // remove and clause for results with PRS
-                processError(projectName, toolSummary, projectErrors);
+                processError(commitHash, fileName, projectName, toolSummary, projectErrors);
             }
 
             prevProject = projectName;
@@ -73,7 +77,7 @@ public class ErrorCounter {
      * @param summary       the summary of errors
      * @param projectErrors the hashmap of errors for a project
      */
-    private static void processError(String projectName, String summary, HashMap<String, Integer> projectErrors) {
+    private static void processError(String commitHash, String fileName, String projectName, String summary, HashMap<String, Integer> projectErrors) {
         int fileTotal = 0;
         String[] errorsSplit = summary.split(",");
         errorsSplit = Arrays.copyOf(errorsSplit, errorsSplit.length - 1); // Remove last element which is always TOTAL
@@ -83,7 +87,7 @@ public class ErrorCounter {
             int count = Integer.parseInt(kV[1].strip());
 
             // add to error database (project, error, count, "FLUFF")
-            errorRowCreator.createErrorRow(projectName, error, count);
+            errorRowCreator.createErrorRow(commitHash, fileName, projectName, error, count);
 
             fileTotal += count;
             totalErrorCount += count;
@@ -108,6 +112,8 @@ public class ErrorCounter {
             ResultSet result = connection.createStatement().executeQuery(query);
             while (result.next()) {
                 projectNames.add(result.getString("project_name"));
+                commitHashes.add(result.getString("commit_hash"));
+                fileNames.add(result.getString("file_name"));
                 String toolSummary = result.getString(column);
                 if (toolSummary.contains("NULL")) {
                     toolSummaries.add("NULL");
