@@ -45,8 +45,8 @@ WHERE Check_Summary LIKE '%Index Attribute Order%' AND Project_Name NOT LIKE '%a
 
 
 -- Select all SQL and error summaries from all three tools
-SELECT project_name, sql, Lint_Summary, Fluff_Summary, Check_summary, FROM (
-    SELECT project_name, sql_files.sql, sql_files.commit_hash, sql_files.file_name, check_summary, lint_summary
+SELECT project_name, sql, Lint_Summary, Fluff_Summary, Check_summary FROM (
+    SELECT project_name, sql_files.sql, sql_files.commit_hash, sql_files.file_name, lint_summary, fluff_summary, check_summary
     FROM sql_files 
     INNER JOIN sql_lint ON sql_files.commit_hash = sql_lint.commit_hash AND sql_files.file_name = sql_lint.file_name
     INNER JOIN sql_fluff ON sql_files.commit_hash = sql_fluff.commit_hash AND sql_files.file_name = sql_fluff.file_name
