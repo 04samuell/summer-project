@@ -1,5 +1,9 @@
 # Profiling of SQL Code Snippets
 
+## Paper
+
+The paper can be read [here](https://github.com/04samuell/summer-project/blob/main/Profiling%20of%20SQL%20Code%20Snippets.pdf). 
+
 ## Introduction
 
 This repo contains all the code used in my summer project focused on gaining insights into the quality of SQL code in open source Apache Java projects.
